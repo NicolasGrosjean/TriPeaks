@@ -40,6 +40,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	
 	public TriPeaks(String title) { //class constructor
 		super(title); //call the JFrame contructor
+		setPreferredSize(new Dimension(1024, 576));
 	}
 	
 	public static void main(String[] args) { //entry point for the application
@@ -66,7 +67,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS)); //align stuff on the Y-Axis
 		setJMenuBar(createMenuBar()); //set the menubar for the frame
 		
-		board = new CardPanel(text); //create the panel with the cards
+		board = new CardPanel(text, getPreferredSize().width, getPreferredSize().height); //create the panel with the cards
 		getContentPane().add(board); //add it to the frame
 		
 		statsPanel = new JPanel(); //create the stats panel
@@ -1078,7 +1079,7 @@ class CardPanel extends JPanel implements MouseListener {
 	private Text text;
 	private Color backColor = (Color.GREEN).darker().darker(); //background color of the board
 	private Color fontColor = Color.WHITE;
-	private Font textFont = new Font("Serif", Font.BOLD, 14);
+	private Font textFont = new Font("Serif", Font.BOLD, 18);
 	public static final int CARDNUMBER = 52;
 	public Card[] theCards = new Card[CARDNUMBER + 2]; //array with the cards
 	public static final int NSTATS = 5;
@@ -1098,17 +1099,20 @@ class CardPanel extends JPanel implements MouseListener {
 	private int highScore = 0; //highest score
 	private int averageScore = 0; //average score
 	private int highStreak = 0; //longest streak
+	private int widthMargin;
+	private int heightMargin;
 	private String status = ""; //status text (used later)
 	private String frontFolder = "Default"; //folder in which the fronts of the cards are stored
-	private String backStyle = "Default"; //style for the back of the cards
+	private String backStyle = "Default"; //style for the back of the cards	
 	
-	public CardPanel(Text text) { //class constructor
+	public CardPanel(Text text, int windowWidth, int windowHeight) { //class constructor
 		this.text = text;
+		widthMargin = (windowWidth - 10 * Card.WIDTH) / 2;
+		heightMargin = (windowHeight - 4 * Card.HEIGHT) / 2;
 		for (int q = 0; q < CARDNUMBER + 2; q++) { //initialize all the cards
 			theCards[q] = new Card(0, 0, false, false, 0, 0); //create a new Card object - random values - so it doesn't throw NullPointerException...
 			theCards[q].setVisible(false);
 		}
-		setPreferredSize(new Dimension(Card.WIDTH * 10, Card.HEIGHT * 4)); //sets the size of the panel (10 cards by 4 cards)
 		addMouseListener(this); //adds a mouse-listener to the board
 	}
 	
@@ -1145,10 +1149,10 @@ class CardPanel extends JPanel implements MouseListener {
 		String tryStr = remTries + " " + ((remTries == 1) ? text.trySingular() : text.tryPlurial()) + " " + text.remaining(); //display how many tries are remaining
 		g.setColor(fontColor); //the text is white
 		g.setFont(textFont); //set the font for the text
-		g.drawString(scoreStr, 5, Card.HEIGHT * 3); //put the score on the panel
-		g.drawString(remStr, 5, Card.HEIGHT * 3 + 25); //put the remaining cards on the panel
-		g.drawString(tryStr, 5, Card.HEIGHT * 3 + 50); //put the remaining tries on the panel
-		g.drawString(status, 5, getSize().height - 10); //print the status message.
+		g.drawString(scoreStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3); //put the score on the panel
+		g.drawString(remStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 + 25); //put the remaining cards on the panel
+		g.drawString(tryStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 + 50); //put the remaining tries on the panel
+		g.drawString(status, widthMargin + 5, heightMargin + getSize().height - 10); //print the status message.
 		status = ""; //reset the status message
 		
 		// Victory on this try
@@ -1163,40 +1167,42 @@ class CardPanel extends JPanel implements MouseListener {
 			theCards[q] = new Card((int) cards[q] / 13, cards[q] % 13, true);
 		}
 		for (int q = 0; q < 3; q++) { //first row
-			theCards[q].setX(2 * Card.WIDTH + q * 3 * Card.WIDTH); //set the X-coord
-			theCards[q].setY((int) Card.HEIGHT / 2); //set the Y-coord for the card
+			theCards[q].setX(widthMargin + 2 * Card.WIDTH + q * 3 * Card.WIDTH); //set the X-coord
+			theCards[q].setY(heightMargin + (int) Card.HEIGHT / 2); //set the Y-coord for the card
 			theCards[q].flip(true); //make it face-down
 		}
 		for (int q = 0; q < 6; q++) { //second row
-			theCards[q + 3].setX(3 * ((int) Card.WIDTH / 2) + q * Card.WIDTH + ((int) q / 2) * Card.WIDTH); //set the coords
-			theCards[q + 3].setY(Card.HEIGHT);
+			theCards[q + 3].setX(widthMargin + 3 * ((int) Card.WIDTH / 2) + q * Card.WIDTH + ((int) q / 2) * Card.WIDTH); //set the coords
+			theCards[q + 3].setY(heightMargin + Card.HEIGHT);
 			theCards[q + 3].flip(true); //face-down
 		}
 		for (int q = 0; q < 9; q++) { //third row
-			theCards[q + 9].setX(Card.WIDTH + q * Card.WIDTH); //set the coords
-			theCards[q + 9].setY(3 * ((int) Card.HEIGHT / 2));
+			theCards[q + 9].setX(widthMargin + Card.WIDTH + q * Card.WIDTH); //set the coords
+			theCards[q + 9].setY(heightMargin + 3 * ((int) Card.HEIGHT / 2));
 			theCards[q + 9].flip(true); //face-down
 		}
 		for (int q = 0; q < 10; q++) { //fourth row
-			theCards[q + 18].setX(((int) Card.WIDTH / 2) + q * Card.WIDTH); //set the coords
-			theCards[q + 18].setY(2 * Card.HEIGHT);
+			theCards[q + 18].setX(widthMargin + ((int) Card.WIDTH / 2) + q * Card.WIDTH); //set the coords
+			theCards[q + 18].setY(heightMargin + 2 * Card.HEIGHT);
 			theCards[q + 18].flip(false); //face-up
 		}
 		for (int q = 28; q < 51; q++) { //the deck
-			theCards[q].setX(7 * ((int) Card.WIDTH / 2)); //same coords for all of them
-			theCards[q].setY(13 * ((int) Card.HEIGHT / 4));
+			theCards[q].setX(widthMargin + 7 * ((int) Card.WIDTH / 2)); //same coords for all of them
+			theCards[q].setY(heightMargin + 13 * ((int) Card.HEIGHT / 4));
 			theCards[q].flip(true); //they're all face-down
 			theCards[q].setVisible(false); //they're invisible
 		}
 		theCards[50].setVisible(true); //only the top one is visible (faster repaint)
 		
-		theCards[51].setX(13 * ((int) Card.WIDTH / 2)); //discard pile
-		theCards[51].setY(13 * ((int) Card.HEIGHT / 4)); //set the coords
+		theCards[51].setX(widthMargin + 13 * ((int) Card.WIDTH / 2)); //discard pile
+		theCards[51].setY(heightMargin + 13 * ((int) Card.HEIGHT / 4)); //set the coords
 		theCards[51].flip(false); //face-up
 		
 		// Special cards when the deck is empty to replace buttons
-		theCards[52] = new Card(13, Card.SPADES, false, false, 7 * ((int) Card.WIDTH / 2), 13 * ((int) Card.HEIGHT / 4));
-		theCards[53] = new Card(14, Card.SPADES, false, false, 7 * ((int) Card.WIDTH / 2), 13 * ((int) Card.HEIGHT / 4));
+		theCards[52] = new Card(13, Card.SPADES, false, false, widthMargin + 7 * ((int) Card.WIDTH / 2),
+				heightMargin + 13 * ((int) Card.HEIGHT / 4));
+		theCards[53] = new Card(14, Card.SPADES, false, false, widthMargin + 7 * ((int) Card.WIDTH / 2),
+				heightMargin + 13 * ((int) Card.HEIGHT / 4));
 		
 		remCards = 23; //23 cards left in the deck
 		cardsInPlay = 28; //all 28 cards are in play
@@ -1466,7 +1472,7 @@ class CardPanel extends JPanel implements MouseListener {
 		backStyle = "Default";
 		backColor = (Color.GREEN).darker().darker();
 		fontColor = Color.WHITE;
-		textFont = new Font("Serif", Font.BOLD, 14);
+		textFont = new Font("Serif", Font.BOLD, 18);
 	}
 	
 	public void setFontColor(Color newColor) {
