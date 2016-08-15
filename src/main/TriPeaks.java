@@ -144,12 +144,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		switchPlr.getAccessibleContext().setAccessibleDescription("Change the current player"); //Tool-tip text
 		switchPlr.addActionListener(new ActionListener() { //add an action listener
 			public void actionPerformed(ActionEvent e) {
-				int penalty = board.getPenalty(); //get the penalty for switching players
-				if (penalty != 0) { //if there's some penalty
-					int uI = JOptionPane.showConfirmDialog(TriPeaks.this, "Are you sure you want to switch players?\nSwitching now results in a penalty of $" + penalty + "!", "Confirm Player Switch", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //show a confirmation dialog
-					if (uI == JOptionPane.YES_OPTION) board.doPenalty(penalty); //if the user clicked Yes, perform the penalty
-					else return; //Otherwise, the user clicked No, so don't do anything
-				}
 				String tempName = JOptionPane.showInputDialog(TriPeaks.this, "Player Name:", uName); //ask for the user's name
 				if ((tempName != null) && (!tempName.equals(""))) { //if it's not null or empty
 					writeScoreSets(); //write the current user's score
@@ -363,14 +357,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		getAccessibleContext().setAccessibleDescription("Exit the Game"); //tooltip
 		exitGame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int penalty = board.getPenalty(); //get penalty for quitting
-				if (penalty != 0) { //if there's a penalty, show the confirmation dialog
-					int uI = JOptionPane.showConfirmDialog(TriPeaks.this, "Are you sure you want to exit?\nExiting now results in a penalty of $" + penalty + "!", "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-					if (uI == JOptionPane.YES_OPTION) { //the user agrees to the penalty
-						board.doPenalty(penalty); //perform the penalty
-					}
-					else return;
-				}
 				writeScoreSets(); //write the user's scores
 				System.exit(0); //exit the program
 			}
@@ -1052,14 +1038,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	}
 	
 	public void windowClosing(WindowEvent e) { //the X is clicked (not when the window disappears - that's windowClosed
-		int penalty = board.getPenalty(); //get the penalty for quitting
-		if (penalty != 0) { //if there is a penalty at all
-			int uI = JOptionPane.showConfirmDialog(this, "Are you sure you want to quit?\nQuitting now results in a penalty of $" + penalty + "!", "Confirm Quit", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //show a confirmation message
-			if (uI == JOptionPane.YES_OPTION) { //if the user clicked Yes
-				board.doPenalty(penalty); //perform the penalty
-			}
-			else return; //no was clicked - don't do anything
-		}
 		File setFile = new File(settingsFile); //create the file
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(setFile)); //create a buffered writer for the file
@@ -1154,12 +1132,6 @@ class CardPanel extends JPanel implements MouseListener {
 	}
 	
 	public void redeal() { //redeals the cards
-		int penalty = getPenalty(); //get the penalty for redealing
-		if (penalty != 0) { //if there is a penalty
-			int uI = JOptionPane.showConfirmDialog(this, "Are you sure you want to redeal?\nRedealing now results in a penalty of $" + penalty + "!", "Confirm Redeal", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //show a confimation message
-			if (uI == JOptionPane.YES_OPTION) doPenalty(penalty); //do the penalty if the user agreed
-			else return; //the user doesn't like the penalty, don't rededal
-		}
 		int[] cards = randomize(); //randomize the cards
 		for (int q = 0; q < 52; q++) { //initialize all the cards
 			theCards[q] = new Card(); //create a new Card object
@@ -1367,17 +1339,6 @@ class CardPanel extends JPanel implements MouseListener {
 		repaint(); //repaint the board
 		TriPeaks theFrame = (TriPeaks) SwingUtilities.windowForComponent(this); //get the containing frame
 		theFrame.updateStats(); //update the stats labels
-	}
-	
-	public int getPenalty() { //return the penalty
-		if ((cardsInPlay != 0) && (remCards != 0)) return (cardsInPlay * 5); //if there are cards in the deck AND in play, the penalty is $5 for every card removed
-		else return 0; //otherwise the penalty is 0
-	}
-	
-	public void doPenalty(int penalty) { //perform the penalty - penalty doesn't affect the low score
-		score -= penalty; //subtract the penalty
-		sesScore -= penalty; //from the session score
-		gameScore -= penalty; //and from the game score
 	}
 	
 	public String getCardFront() { //returns the current front style
