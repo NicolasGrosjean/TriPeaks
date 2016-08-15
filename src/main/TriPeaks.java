@@ -1147,10 +1147,11 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	}
 	
 	public void windowOpened(WindowEvent e) { //the window is opened
-		InputStream is = TriPeaks.class.getResourceAsStream(settingsFile); //get the file as a stream
+		InputStream is = null; //get the file as a stream
 		String line = null; //placeholder for the line
 		String defName = "";
 		try {
+			is = new FileInputStream(settingsFile);
 			if (is == null) throw new Exception("First Time Running");
 			BufferedReader in = new BufferedReader(new InputStreamReader(is)); //create a buffered reader for the file
 			if ((line = in.readLine()) != null) { //read the line
