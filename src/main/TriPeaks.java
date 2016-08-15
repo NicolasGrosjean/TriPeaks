@@ -119,6 +119,8 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		maxStr.setAlignmentX(Component.LEFT_ALIGNMENT);
 		col3.add(maxStr);
 		
+		board.redeal(true);
+		
 		addWindowListener(this); //add a window-event listner to the frame
 	}
 	
@@ -134,7 +136,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		deal.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0)); //accessed with F2
 		deal.addActionListener(new ActionListener() { //add an action listener to it
 			public void actionPerformed(ActionEvent e) {
-				board.redeal(); //call the redeal method of the board
+				board.redeal(true); //call the redeal method of the board
 			}
 		});
 		gameMenu.add(deal); //add the menu item to the menu
@@ -506,7 +508,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 			public void actionPerformed(ActionEvent e) {
 				Color newColor = JColorChooser.showDialog(TriPeaks.this, "Choose Background Color", board.getBackColor()); //show a color chooser, with the current color as the default
 				if (newColor != null) board.setBackColor(newColor); //if the user didn't click Cancel, set the color
-				board.repaint(); //repaint the baord.
+				board.repaint(); //repaint the board.
 			}
 		});
 		optionMenu.add(boardColor); //add the item to the menu
@@ -1065,17 +1067,19 @@ class CardPanel extends JPanel implements MouseListener {
 	private Color backColor = (Color.GREEN).darker().darker(); //background color of the board
 	private Color fontColor = Color.WHITE;
 	private Font textFont = new Font("Serif", Font.BOLD, 14);
-	public Card[] theCards = new Card[52]; //array with the cards
+	public static final int CARDNUMBER = 52;
+	public Card[] theCards = new Card[CARDNUMBER + 2]; //array with the cards
 	public static final int NSTATS = 5;
-	public static final int cardPoint = 100; // point set when removing a card
-	public static final int peakBonus = 500; // bonus when finishing a peak
+	public static final int CARDPOINTS = 100; // point set when removing a card
+	public static final int PEAKBONUS = 500; // bonus when finishing a peak
 	private int disIndex = 51; //index of the card in the discard pile
 	private int score = 0; //player's overall score
 	private int gameScore = 0; //current game score
 	private int sesScore = 0; //session score
 	private int streak = 0; //streak (number of cards, not the value)
 	private int remCards = 0; //cards remaining in the deck
-	private int cardsInPlay = 0; //cards left on the board (not removed into the discard pile)
+	private int remTries = 0; // tries remaining in the game
+	private int cardsInPlay = -1; //cards left on the board (not removed into the discard pile)
 	private int remPeaks = 3; //peaks remaining (0 is a clear board)
 	private int numGames = 0; //number of player games
 	private int sesGames = 0; //number of session games
@@ -1087,7 +1091,7 @@ class CardPanel extends JPanel implements MouseListener {
 	private String backStyle = "Default"; //style for the back of the cards
 	
 	public CardPanel() { //class constructor
-		for (int q = 0; q < 52; q++) { //initialize all the cards
+		for (int q = 0; q < CARDNUMBER + 2; q++) { //initialize all the cards
 			theCards[q] = new Card(0, 0, false, false, 0, 0); //create a new Card object - random values - so it doesn't throw NullPointerException...
 			theCards[q].setVisible(false);
 		}
@@ -1099,7 +1103,7 @@ class CardPanel extends JPanel implements MouseListener {
 		super.paintComponent(g); //paints the JPanel
 		g.setColor(backColor); //use the background color
 		g.fillRect(0, 0, getSize().width, getSize().height); //draw the background		
-		for (int q = 0; q < 52; q++) { //go through each card
+		for (int q = 0; q < CARDNUMBER + 2; q++) { //go through each card
 			if (theCards[q] == null) continue; //if a card is null (i.e. program was just started, cards not initialized yet), skip it
 			if (!theCards[q].isVisible()) continue; //if a card isn't visible, skip it
 			BufferedImage img = null; //image to be created
@@ -1173,14 +1177,22 @@ class CardPanel extends JPanel implements MouseListener {
 		theCards[51].setY(13 * ((int) Card.HEIGHT / 4)); //set the coords
 		theCards[51].flip(false); //face-up
 		
+		// Special cards when the deck is empty to replace buttons
+		theCards[52] = new Card(13, Card.SPADES, false, false, 7 * ((int) Card.WIDTH / 2), 13 * ((int) Card.HEIGHT / 4));
+		theCards[53] = new Card(14, Card.SPADES, false, false, 7 * ((int) Card.WIDTH / 2), 13 * ((int) Card.HEIGHT / 4));
+		
 		remCards = 23; //23 cards left in the deck
 		cardsInPlay = 28; //all 28 cards are in play
 		remPeaks = 3; //all three peaks are there
 		streak = 0; //the streak is reset
-		gameScore = 0; //the game score is reset
 		disIndex = 51; //the discard pile index is back to 51
-		numGames++; //increment the number of games played
-		sesGames++; //increment the number of session games
+
+		if (newGame) {
+			remTries = 3; // 3 tries
+			gameScore = 0; //the game score is reset
+			numGames++; //increment the number of games played
+			sesGames++; //increment the number of session games
+		}
 		
 		repaint(); //repaint the board
 		TriPeaks theFrame = (TriPeaks) SwingUtilities.windowForComponent(this); //get the frame that contains the board
@@ -1188,7 +1200,7 @@ class CardPanel extends JPanel implements MouseListener {
 	}
 	
 	public void reset() { //resets everything
-		for (int q = 0; q < 52; q++) { //go through every card
+		for (int q = 0; q < CARDNUMBER + 2; q++) { //go through every card
 			theCards[q].setVisible(false); //make all the cards invisible
 		}
 		disIndex = 51; //essentially the same thing as the default values for the fields
@@ -1197,7 +1209,8 @@ class CardPanel extends JPanel implements MouseListener {
 		sesScore = 0;
 		streak = 0;
 		remCards = 0;
-		cardsInPlay = 0;
+		remTries = 0;
+		cardsInPlay = -1;
 		remPeaks = 3;
 		numGames = 0;
 		sesGames = 0;
@@ -1212,13 +1225,13 @@ class CardPanel extends JPanel implements MouseListener {
 	}
 	
 	public int[] randomize() { //randomizes an array - we're working with a 52-element array, so it puts the numbers 0-51 in random order
-		int[] retVal = new int[52]; //the array for the numbers
-		boolean[] check = new boolean[52]; //the checking array - which numbers have been used
+		int[] retVal = new int[CARDNUMBER]; //the array for the numbers
+		boolean[] check = new boolean[CARDNUMBER]; //the checking array - which numbers have been used
 		int[] pass; //array to  pick the random item from
 		ArrayList<Integer> passList; //an ArrayList of Integers for the selection of possible values
-		for (int q = 0; q < 52; q++) { //walk through the array, setting values for each of them
+		for (int q = 0; q < CARDNUMBER; q++) { //walk through the array, setting values for each of them
 			passList = new ArrayList<Integer>(); //re-initialize the arraylist every time
-			for (int r = 0; r < 52; r++) { //walk through the possible numbers
+			for (int r = 0; r < CARDNUMBER; r++) { //walk through the possible numbers
 				if (!check[r]) passList.add(r); //if the number hasn't been used, add it to the ArrayList
 			}
 			pass = new int[passList.size()]; //create a new array to pass the elements into another method
@@ -1239,7 +1252,7 @@ class CardPanel extends JPanel implements MouseListener {
 	
 	public void mouseClicked(MouseEvent e) { //when the player clicks anywhere on the board
 		int startX, startY, endX, endY; //placeholders for the bounds of the card
-		for (int q = 51; q >= 0; q--) { //go through the cards in reverse order - the higher index-cards are on top
+		for (int q = 53; q >= 0; q--) { //go through the cards in reverse order - the higher index-cards are on top
 			if (theCards[q] == null) continue; //if the card hasn't been initialized, skip it
 			if (!theCards[q].isVisible()) continue; //if the card is invisible, skip it
 			if (((q < 28) || (q == 51)) && (theCards[q].isFacingDown())) continue; //if the card isn't part of the deck and is face-down, skip it
@@ -1260,27 +1273,24 @@ class CardPanel extends JPanel implements MouseListener {
 				
 				streak++; //increment the streak
 				cardsInPlay--; //decrement the number of cards in play
-				score += cardPoint; //add the cardPoint to the score
-				gameScore += cardPoint; //and to the current game's score
-				sesScore += cardPoint; //and to the session score
+				score += CARDPOINTS; //add the cardPoint to the score
+				gameScore += CARDPOINTS; //and to the current game's score
+				sesScore += CARDPOINTS; //and to the session score
 				if (streak > highStreak) highStreak = streak; //set the high streak if it's higher
 				if (gameScore > highScore) highScore = gameScore; //set the high score if it's higher
 				
 				if (q < 3) { //if it was a peak
 					remPeaks--; //there's one less peak
-					score += 15; //add a 15-point bonus
-					gameScore += 15; //and to the game score
-					sesScore += 15; //and to the session score
+					score += (3 - remPeaks) * PEAKBONUS; //add a bonus
+					gameScore += (3 - remPeaks) * PEAKBONUS; //and to the game score
+					sesScore += (3 - remPeaks) * PEAKBONUS; //and to the session score
 					if (remPeaks == 0) { //if all the peaks are gone
-						score += 15; //add another 15-point bonus (for a total of 30 bonus points)
-						gameScore += 15; //and to the game score
-						sesScore += 15; //and to the session score
-						status = "You have Tri-Conquered! You get a bonus of $30"; //set the status message
+						status = "You have Tri-Conquered!"; //set the status message
 						for (int w = 28; w < (remCards + 28); w++) { //the remaining deck
 							theCards[w].setVisible(false); //hide the deck (so you can't take cards from the deck after you clear the board
 						}
 					}
-					else status = "You have reached a peak! You get a bonus of $15"; //set the status message
+					else status = "You have reached a peak!"; //set the status message
 					
 					if (gameScore > highScore) highScore = gameScore; //set the high score if the score is higher
 					break; //"consume" the mouse click - don't go through the rest of the cards
@@ -1321,16 +1331,26 @@ class CardPanel extends JPanel implements MouseListener {
 				if (offset == -1) break; //if the offset didn't get set, don't do anything (offset should get set, but just in case)
 				if (noLeft) theCards[q - offset].flip(); //if the left card is missing, use the current card as the right one
 				if (noRight) theCards[q - offset + 1].flip(); //if the right card is missing, use the missing card as the right one
-			}
-			else if ((q >= 28) && (q < 51)) { //in the deck
+			} else if ((q >= 28) && (q < 51)) { //in the deck
 				theCards[q].setX(theCards[disIndex].getX()); //move the card to the deck
 				theCards[q].setY(theCards[disIndex].getY()); //set the deck's coordinates
 				theCards[disIndex].setVisible(false); //hide the previously discarded card (for faster repaint)
 				theCards[q].flip(); //flip the deck card
-				if (q != 28) theCards[q - 1].setVisible(true); //show the next deck card if it's not the last deck card
+				if (q != 28) {
+					theCards[q - 1].setVisible(true); //show the next deck card if it's not the last deck card
+				} else if (remTries > 0) {
+					theCards[52].setVisible(true);
+				} else {
+					theCards[53].setVisible(true);
+				}
 				disIndex = q; //set the index of the discard pile
 				streak = 0; //reset the streak
 				remCards--; //decrement the number of cards in the deck
+			} else if (q == 52) {
+				remTries--;
+				redeal(false);
+			} else if (q == 53) {
+				redeal(true);
 			}
 			break; //"consume" the click - don't go through the rest of the cards
 		}
@@ -1458,8 +1478,8 @@ class Card { //defines a card
 	private int xCoord; //coordinates of the card (center, not top-left)
 	private int yCoord;
 	
-	public Card() {
-		//must initialize manually, later on
+	public Card(int suit, int value, boolean visible) {
+		this(value, suit, true, visible, 0, 0);
 	}
 	
 	public Card(int value, int suit, boolean isFaceDown, boolean visible, int x, int y) { //specify all the fields at once
