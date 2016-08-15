@@ -30,8 +30,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	private final String dirName = scoresDir; //the folder with the score files (ROT13 of TriScores)
 	private final String settingsFile = "TriSet";
 	private String uName; //name of the player
-	private JPanel statsPanel; //the pnael with the stats
-	private JCheckBoxMenuItem[] cheatItems = new JCheckBoxMenuItem[CardPanel.NCHEATS];
+	private JPanel statsPanel; //the panel with the stats
 	private boolean seenWarn = false;
 	private JCheckBoxMenuItem statsCheck;
 	
@@ -741,50 +740,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		});
 		optionMenu.add(resetDefs); //add it to the menu
 		
-		JMenu cheatMenu = new JMenu("Cheats"); //a menu with cheats
-		cheatMenu.addMenuListener(new MenuListener() { //add a menu listener to it
-			public void menuSelected(MenuEvent e) { //when the menu was selected
-				if (!board.hasCheated() && !seenWarn) JOptionPane.showMessageDialog(TriPeaks.this, "Using Cheats will SCAR your name!!!\nThe only way to un-scar is to RESET!!!\nProceed at your own risk!!!", "Cheat Warning!", JOptionPane.WARNING_MESSAGE); //if the user hasn't cheated yet, display a warning.
-				seenWarn = true;
-			}
-			public void menuDeselected(MenuEvent e) { } //not interested in these, but necessary for implementation
-			public void menuCanceled(MenuEvent e) { }
-		});
-		menuBar.add(cheatMenu); //add it to the menu bar
-		
-		cheatItems[0] = new JCheckBoxMenuItem("Cards face up"); //cheat 1 - all cards appear face-up (doesn't actually make them face-up)
-		cheatItems[0].addItemListener(new ItemListener() { //add item listener
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) board.setCheat(0, true); //if it was checked, enable the cheat
-				else board.setCheat(0, false); //if it was unchecked, disable the cheat
-				board.repaint(); //repaint the board
-				setTitle("TriPeaks - Cheat Mode"); //set the cheating title bar
-			}
-		});
-		cheatMenu.add(cheatItems[0]);
-		//same thing for the rest of the cheats
-		cheatItems[1] = new JCheckBoxMenuItem("Click any card"); //cheat 2 - click any card that's face-up (regardless of value)
-		cheatItems[1].addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) board.setCheat(1, true);
-				else board.setCheat(1, false);
-				board.repaint();
-				setTitle("TriPeaks - Cheat Mode");
-			}
-		});
-		cheatMenu.add(cheatItems[1]);
-		
-		cheatItems[2] = new JCheckBoxMenuItem("No Penalty"); //cheat 3 - no penalty (score can never go down)
-		cheatItems[2].addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) board.setCheat(2, true);
-				else board.setCheat(2, false);
-				board.repaint();
-				setTitle("TriPeaks - Cheat Mode");
-			}
-		});
-		cheatMenu.add(cheatItems[2]);
-		
 		menuBar.add(Box.createHorizontalGlue()); //The next menu will be on the right
 		
 		JMenu helpMenu = new JMenu("Help"); //Help menu
@@ -838,36 +793,15 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 				stratPanel.add(titleStrat, BorderLayout.PAGE_START);
 				stratPanel.add(stratScroll, BorderLayout.CENTER);
 				
-				JLabel titleCheat = new JLabel("Game Cheats");
-				titleCheat.setFont(titleFont);
-				titleCheat.setHorizontalAlignment(JLabel.CENTER);
-				
-				JTextArea textCheat = new JTextArea();
-				textCheat.setText("I HIGHLY DISCOURAGE CHEATING!!!\n\n   There is a penalty for chating! Your account will be \"scarred\" - \"CHEATER\" will be displayed in the backgournd and \"Cheat Mode\" will appear in the titlebar once you enable any cheat. Even if you disable all cheats, your username will still be scarred. The only was to un-scar is to RESET! Here is what the cheats do:\n    - All cards face up = all cards appear to be face-up, but act normally, as without the cheat.\n    - Click any card = click any face-up card. Beware when using with previous cheat - cards only appear face-up\n    - No Penalty = no penalty for anything. So your score never goes down.");
-				textCheat.setEditable(false);
-				textCheat.setFont(textFont);
-				textCheat.setLineWrap(true);
-				textCheat.setWrapStyleWord(true);
-				
-				JScrollPane cheatScroll = new JScrollPane(textCheat);
-				cheatScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-				
-				JPanel cheatPanel = new JPanel(new BorderLayout(3, 3));
-				cheatPanel.add(titleCheat, BorderLayout.PAGE_START);
-				cheatPanel.add(cheatScroll, BorderLayout.CENTER);
-				
 				JTabbedPane helpTabs = new JTabbedPane(); //Initialize the tabbed pane
 				
 				helpTabs.addTab("How To Play", getImageIcon("Images" + File.separator + "help.png"), helpPanel, "How to Play"); //add the tab to the tabbed pane
 				helpTabs.setMnemonicAt(0, KeyEvent.VK_P); //Alt+P
 				helpTabs.addTab("Strategies", getImageIcon("Images" + File.separator + "Strategy.png"), stratPanel, "Game Strategies");
 				helpTabs.setMnemonicAt(1, KeyEvent.VK_S); //Alt+S
-				helpTabs.addTab("Cheats", getImageIcon("Images" + File.separator + "cheat.png"), cheatPanel, "Game Cheats");
-				helpTabs.setMnemonicAt(2, KeyEvent.VK_C); //Alt+C
 				
 				helpScroll.getVerticalScrollBar().setValue(0);
 				stratScroll.getVerticalScrollBar().setValue(0);
-				cheatScroll.getVerticalScrollBar().setValue(0);
 				
 				JButton closeButton = new JButton("Close"); //button to close the dialog
 				closeButton.addActionListener(new ActionListener() {
@@ -1021,28 +955,24 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		File file = new File(dirName + File.separator + fileName + ".txt"); //get the file
 		String line = null; //placeholder for the line
 		int[] stats = new int[CardPanel.NSTATS]; //the array for the stats
-		boolean[] cheats = new boolean[CardPanel.NCHEATS]; //cheats array for the cheat menu items
-		boolean hasCheated = false; //the cheat status
 		int lNum = -1; //line number (incremented before setting value)
 		BufferedReader in = null;
 		try {
 			in = new BufferedReader(new FileReader(file)); //create a buffered reader for the file
 			while ((line = in.readLine()) != null) { //read the lines one-by-one
 				lNum++; //increment the line number
-				if (lNum > (stats.length + cheats.length + 6)) break; //stop if there are more lines than needed
+				if (lNum > (stats.length + 6)) break; //stop if there are more lines than needed
 				if ((lNum >= 0) && (lNum < stats.length)) stats[lNum] = Integer.parseInt(line); //set the value based on the decrypted line, if the line belongs to the stats array
-				else if ((lNum >= stats.length) && (lNum < (stats.length + cheats.length))) cheats[lNum - stats.length] = Boolean.parseBoolean(line); //set the values based on the decrypted line, if the line belongs to the cheats array
-				else if (lNum == stats.length + cheats.length) hasCheated = Boolean.parseBoolean(line);
-				else if (lNum == stats.length + cheats.length + 1) board.setCardFront(line);
-				else if (lNum == stats.length + cheats.length + 2) board.setCardBack(line);
-				else if (lNum == stats.length + cheats.length + 3) {
+				else if (lNum == stats.length) board.setCardFront(line);
+				else if (lNum == stats.length + 1) board.setCardBack(line);
+				else if (lNum == stats.length + 2) {
 					int cm1, cm2; //two commas
 					cm1 = line.indexOf(','); //get the indexes of the two commas
 					cm2 = line.lastIndexOf(',');
 					if ((cm1 == -1) || (cm2 == -1) || (cm1 == cm2)) continue; //if either comma isn't found, exit
 					board.setBackColor(new Color(Integer.parseInt(line.substring(0, cm1)), Integer.parseInt(line.substring(cm1 + 1, cm2)), Integer.parseInt(line.substring(cm2 + 1)))); //convert to integer and set the color
 				}
-				else if (lNum == stats.length + cheats.length + 4) {
+				else if (lNum == stats.length + 3) {
 					int dash, cm1, cm2;
 					dash = line.indexOf('-');
 					cm1 = line.indexOf(',');
@@ -1052,7 +982,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 					int ital = (Boolean.parseBoolean(line.substring(cm1 + 1, cm2))) ? Font.ITALIC : 0;
 					board.setTextFont(new Font(line.substring(0, dash), bold | ital, Integer.parseInt(line.substring(cm2 + 1))));
 				}
-				else if (lNum == stats.length + cheats.length + 5) {
+				else if (lNum == stats.length + 4) {
 					int cm1, cm2;
 					cm1 = line.indexOf(',');
 					cm2 = line.lastIndexOf(',');
@@ -1061,11 +991,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 				}
 			}
 			board.setStats(stats); //set the stats in the board
-			board.setCheated(hasCheated); //set the cheat status
-			setTitle(hasCheated ? "TriPeaks - Cheat Mode" : "TriPeaks"); //set the title based on the cheat status
-			for (int q = 0; q < cheats.length; q++) { //go through the cheats
-				cheatItems[q].setSelected(cheats[q]); //set the selected status of the menu items used for the cheats
-			}
 			updateStats(); //update the labels
 			board.repaint(); //repaint the board
 		} catch (FileNotFoundException eFNF) { //file wasn't found (probalby because the user doesn't exist yet
@@ -1086,7 +1011,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		File setFile = new File(dirName + File.separator + fileName + ".txt"); //create the file
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(setFile)); //create a buffered writer for the file
-			boolean[] cheats = board.getCheats();
 			Color boardColor = board.getBackColor();
 			Font textFont = board.getTextFont();
 			Color fontColor = board.getFontColor();
@@ -1100,14 +1024,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 			out.write("" + board.getNumGames()); //number of games played by the user
 			out.newLine();
 			out.write("" + board.getHighStreak()); //player's longest streak
-			out.newLine();
-			out.write("" + cheats[0]); //first cheat
-			out.newLine();
-			out.write("" + cheats[1]); //second cheat
-			out.newLine();
-			out.write("" + cheats[2]); //third cheat
-			out.newLine();
-			out.write("" + board.hasCheated()); //player's cheat status
 			out.newLine();
 			out.write("" + board.getCardFront());
 			out.newLine();
@@ -1200,9 +1116,6 @@ class CardPanel extends JPanel implements MouseListener {
 	private Font textFont = new Font("Serif", Font.BOLD, 14);
 	public Card[] theCards = new Card[52]; //array with the cards
 	public static final int NSTATS = 5;
-	public static final int NCHEATS = 3;
-	private boolean[] cheats = new boolean[NCHEATS];
-	private boolean hasCheatedYet = false;
 	private int disIndex = 51; //index of the card in the discard pile
 	private int score = 0; //player's overall score
 	private int gameScore = 0; //current game score
@@ -1232,13 +1145,7 @@ class CardPanel extends JPanel implements MouseListener {
 	public void paint(Graphics g) { //custom paint method
 		super.paintComponent(g); //paints the JPanel
 		g.setColor(backColor); //use the background color
-		g.fillRect(0, 0, getSize().width, getSize().height); //draw the background
-		if (hasCheatedYet) { //if the user has ever cheated
-			g.setColor(new Color(fontColor.getRed(), fontColor.getGreen(), fontColor.getBlue(), 80)); //set the color - white, somewhat transparent
-			g.setFont(new Font("SansSerif", Font.BOLD, 132)); //set the font - big and fat
-			g.drawString("CHEATER", 0, getSize().height - 5); //print "CHEATER" on the bottom edge of the board
-		}
-		
+		g.fillRect(0, 0, getSize().width, getSize().height); //draw the background		
 		for (int q = 0; q < 52; q++) { //go through each card
 			if (theCards[q] == null) continue; //if a card is null (i.e. program was just started, cards not initialized yet), skip it
 			if (!theCards[q].isVisible()) continue; //if a card isn't visible, skip it
@@ -1248,8 +1155,7 @@ class CardPanel extends JPanel implements MouseListener {
 			if (!theCards[q].isFacingDown()) //if it's face-up
 				imgPath = "CardSets" + File.separator + "Fronts" + File.separator + frontFolder + File.separator + theCards[q].suitAsString() + (theCards[q].getValue() + 1) + ".png"; //get the corresponding front of the card
 			else {//otherwise it's face-down
-				if (!cheats[0]) imgPath = "CardSets" + File.separator + "Backs" + File.separator + backStyle + ".png"; //get the image for the back of the card - if the first cheat isn't on
-				else imgPath = "CardSets" + File.separator + "Fronts" + File.separator + frontFolder + File.separator + theCards[q].suitAsString() + (theCards[q].getValue() + 1) + ".png"; //get the corresponding front of the card if the cheat is on...
+				imgPath = "CardSets" + File.separator + "Backs" + File.separator + backStyle + ".png"; //get the image for the back of the card - if the first cheat isn't on
 			}
 			try {
 				img = ImageIO.read(new File(imgPath)); //try to read the image
@@ -1352,8 +1258,6 @@ class CardPanel extends JPanel implements MouseListener {
 		lowScore = 0;
 		highStreak = 0;
 		status = "";
-		cheats = new boolean[cheats.length];
-		hasCheatedYet = false;
 		
 		repaint(); //repaint the board
 		TriPeaks theFrame = (TriPeaks) SwingUtilities.windowForComponent(this); //get the frame
@@ -1400,12 +1304,7 @@ class CardPanel extends JPanel implements MouseListener {
 			endY = theCards[q].getY() + ((int) Card.HEIGHT / 2); //bottom edge of the card
 			if ((startX > e.getX()) || (endX < e.getX()) || (startY > e.getY()) || (endY < e.getY())) continue; //if the mouse was clicked outside the card, skip the rest
 			boolean isAdjacent; //a value to check if the card is adjacent by value
-			if (cheats[1]) { //if the second cheat is used, the value of the card won't be checked
-				isAdjacent = true; //the card is adjacent automatically
-			}
-			else { //no cheat - check card
-				isAdjacent = theCards[q].isAdjacentTo(theCards[disIndex]); //check if the card is adjacent by value
-			}
+			isAdjacent = theCards[q].isAdjacentTo(theCards[disIndex]); //check if the card is adjacent by value
 			if ((q < 28) && isAdjacent) { //if the card isn't in the deck and is adjacent to the last discarded card
 				theCards[q].setX(theCards[disIndex].getX()); //put the card in the discard pile
 				theCards[q].setY(theCards[disIndex].getY()); //set the discard pile's card's coords
@@ -1484,11 +1383,9 @@ class CardPanel extends JPanel implements MouseListener {
 				if (q != 28) theCards[q - 1].setVisible(true); //show the next deck card if it's not the last deck card
 				disIndex = q; //set the index of the dicard pile
 				streak = 0; //reset the streak
-				if (!cheats[2]) { //if the thrid cheat isn't on (no penalty cheat)
-					score -= 5; //5-point penalty
-					gameScore -= 5; //to the game score
-					sesScore -= 5; //and the session score
-				}
+				score -= 5; //5-point penalty
+				gameScore -= 5; //to the game score
+				sesScore -= 5; //and the session score
 				if (gameScore < lowScore) lowScore = gameScore; //set the low score if score is lower
 				remCards--; //decrement the number of cards in the deck
 			}
@@ -1500,7 +1397,6 @@ class CardPanel extends JPanel implements MouseListener {
 	}
 	
 	public int getPenalty() { //return the penalty
-		if (cheats[2]) return 0; //if the penalty cheat is on, there is no penalty
 		if ((cardsInPlay != 0) && (remCards != 0)) return (cardsInPlay * 5); //if there are cards in the deck AND in play, the penalty is $5 for every card removed
 		else return 0; //otherwise the penalty is 0
 	}
@@ -1572,21 +1468,6 @@ class CardPanel extends JPanel implements MouseListener {
 		return retVal;
 	}
 	
-	public boolean isCheating() { //check if the player is currently cheating
-		for (int q = 0; q < cheats.length; q++) { //go through all the cheats
-			if (cheats[q]) return true; //return true if any cheat is on
-		}
-		return false; //no cheat was found - return false
-	}
-	
-	public boolean hasCheated() { //checks if player has ever cheated
-		return hasCheatedYet;
-	}
-	
-	public boolean[] getCheats() { //returns all the cheats
-		return cheats; //return the cheats array
-	}
-	
 	public void setStats(int[] stats) { //sets all the stats based on the array values
 		score = stats[0]; //the programmer knows the order of the stats to be passed into this method:
 		highScore = stats[1]; //overall score, high score, low score, number of games, and longest streak
@@ -1605,20 +1486,6 @@ class CardPanel extends JPanel implements MouseListener {
 	
 	public void setBackColor(Color newColor) { //sets the background color
 		backColor = newColor;
-	}
-	
-	public void setCheat(int cheatNum, boolean newState) { //set a cheat with the given index
-		if (cheatNum >= cheats.length) return; //if the index is out of bounds
-		if (newState) hasCheatedYet = true; //if the cheat is turned on, set the "has cheated" flag
-		cheats[cheatNum] = newState; //set the cheat
-	}
-	
-	public void setCheats(boolean[] newCheats) { //set all the cheats in a given array
-		for (int q = 0; q < cheats.length; q++) setCheat(q, newCheats[q]); //go through the array and set the cheats
-	}
-	
-	public void setCheated(boolean hasCheatedYet) { //set the cheated status for the player.
-		this.hasCheatedYet = hasCheatedYet;
 	}
 	
 	public void setDefaults() {
@@ -1779,151 +1646,6 @@ class Card { //defines a card
 	}
 } //end class Card
 
-class Encryptor { //a class used to encrypt and decrypt stuff
-	Cipher encipher; //two cipher objects - one for encrypting and one for decrypting
-	Cipher decipher;
-	byte[] salt = {(byte) 0xA9, (byte) 0x9B, (byte) 0xC8, (byte) 0x32, (byte) 0x56, (byte) 0x35, (byte) 0xE3, (byte) 0x03}; //salt for the encryption (more secure)
-	int iterCt = 19; //number of iterations for encryption
-	
-	public Encryptor(String passPhrase) { //create the encryptor object
-		try { //lots of things can go wrong
-			KeySpec keySpec = new PBEKeySpec(passPhrase.toCharArray(), salt, iterCt); //create the PBE (Password-based ecryption) key specification
-			SecretKey key = SecretKeyFactory.getInstance("PBEWithMD5AndDES").generateSecret(keySpec); //generate a secret encryption key (Password-Based Encryption with Message Digest 5 and Data Encryption Standard)
-			encipher = Cipher.getInstance(key.getAlgorithm()); //create the Cipher objects
-			decipher = Cipher.getInstance(key.getAlgorithm());
-			AlgorithmParameterSpec pSpec = new PBEParameterSpec(salt, iterCt); //create the encryption algorithm
-			decipher.init(Cipher.DECRYPT_MODE, key, pSpec); //initialize the two Ciphers, with the same keya and algorithm, but different modes
-			encipher.init(Cipher.ENCRYPT_MODE, key, pSpec);
-		}
-		catch (InvalidAlgorithmParameterException eIAP) { } //catch all the exceptions that can get thrown.
-		catch (InvalidKeySpecException eIKS) { }
-		catch (NoSuchPaddingException eNSP) { }
-		catch (NoSuchAlgorithmException eNSA) { }
-		catch (InvalidKeyException eIK) { }
-	}
-	
-	public String encrypt(String in) { //encrypts a stirng
-		try { //lots of things that can go wrong
-			byte[] utf8 = in.getBytes("UTF8"); //Convert the string to UTF-8 bytecodes
-			byte[] enBytes = encipher.doFinal(utf8); //have the Cipher encrypt the bytes
-			String out = new String(Base64Coder.encode(enBytes)); //Create a string from the bytes using Base64 encoding
-			return out; //return the encrypted string
-		}
-		catch (BadPaddingException eBP) { } //catch all the exceptions
-		catch (IllegalBlockSizeException eIBS) { }
-		catch (UnsupportedEncodingException eUE) { }
-		return null; //return null if there was an exception
-	}
-	
-	public String decrypt(String in) { //decrypts a string
-		try { //lots of things that can go wrong
-			byte[] deBytes = Base64Coder.decode(in); //get the encrypted bytes by decoding the Base64-encoded text
-			byte[] utf8 = decipher.doFinal(deBytes); //use the Cipher to decrypt the bytes into UTF-8 bytecodes
-			String out = new String (utf8, "UTF8"); //create a new string from those bytes
-			return out; //return the decrypted string
-		}
-		catch (BadPaddingException eBP) { } //catch all the exceptions
-		catch (IllegalBlockSizeException eIBS) { }
-		catch (UnsupportedEncodingException eUE) { }
-		return null; //return null if there was an exception
-	}
-} //end Encryptor class
-
-/*Start Base64 encoding and decoding code.
-***NOTE*** This is NOT my code. This code was written by Christian d'Heureuse
-	   to provide a more standard base64 coder that's fast and efficient.
-	   As such, I won't provide comments for that code.
-	   Java does NOT provide a Base64 encoder/decoder as part of the API.*/
-
-class Base64Coder {
-	private static char[] map1 = new char[64];
-		static {
-			int i=0;
-			for (char c='A'; c<='Z'; c++) map1[i++] = c;
-			for (char c='a'; c<='z'; c++) map1[i++] = c;
-			for (char c='0'; c<='9'; c++) map1[i++] = c;
-			map1[i++] = '+';
-			map1[i++] = '/';
-		}
-	
-	private static byte[] map2 = new byte[128];
-		static {
-			for (int i=0; i<map2.length; i++) map2[i] = -1;
-			for (int i=0; i<64; i++) map2[map1[i]] = (byte)i;
-		}
-	
-	public static String encodeString (String s) {
-		return new String(encode(s.getBytes()));
-	}
-	
-	public static char[] encode (byte[] in) {
-		return encode(in,in.length);
-	}
-	
-	public static char[] encode (byte[] in, int iLen) {
-		int oDataLen = (iLen*4+2)/3;
-		int oLen = ((iLen+2)/3)*4;
-		char[] out = new char[oLen];
-		int ip = 0;
-		int op = 0;
-		while (ip < iLen) {
-			int i0 = in[ip++] & 0xff;
-			int i1 = ip < iLen ? in[ip++] & 0xff : 0;
-			int i2 = ip < iLen ? in[ip++] & 0xff : 0;
-			int o0 = i0 >>> 2;
-			int o1 = ((i0 &   3) << 4) | (i1 >>> 4);
-			int o2 = ((i1 & 0xf) << 2) | (i2 >>> 6);
-			int o3 = i2 & 0x3F;
-			out[op++] = map1[o0];
-			out[op++] = map1[o1];
-			out[op] = op < oDataLen ? map1[o2] : '='; op++;
-			out[op] = op < oDataLen ? map1[o3] : '='; op++;
-		}
-		return out;
-	}
-	
-	public static String decodeString (String s) {
-		return new String(decode(s));
-	}
-	
-	public static byte[] decode (String s) {
-		return decode(s.toCharArray());
-	}
-	
-	public static byte[] decode (char[] in) {
-		int iLen = in.length;
-		if (iLen%4 != 0) throw new IllegalArgumentException ("Length of Base64 encoded input string is not a multiple of 4.");
-		while (iLen > 0 && in[iLen-1] == '=') iLen--;
-		int oLen = (iLen*3) / 4;
-		byte[] out = new byte[oLen];
-		int ip = 0;
-		int op = 0;
-		while (ip < iLen) {
-			int i0 = in[ip++];
-			int i1 = in[ip++];
-			int i2 = ip < iLen ? in[ip++] : 'A';
-			int i3 = ip < iLen ? in[ip++] : 'A';
-			if (i0 > 127 || i1 > 127 || i2 > 127 || i3 > 127)
-				throw new IllegalArgumentException ("Illegal character in Base64 encoded data.");
-			int b0 = map2[i0];
-			int b1 = map2[i1];
-			int b2 = map2[i2];
-			int b3 = map2[i3];
-			if (b0 < 0 || b1 < 0 || b2 < 0 || b3 < 0)
-				throw new IllegalArgumentException ("Illegal character in Base64 encoded data.");
-			int o0 = ( b0       <<2) | (b1>>>4);
-			int o1 = ((b1 & 0xf)<<4) | (b2>>>2);
-			int o2 = ((b2 &   3)<<6) |  b3;
-			out[op++] = (byte)o0;
-			if (op<oLen) out[op++] = (byte)o1;
-			if (op<oLen) out[op++] = (byte)o2;
-		}
-		return out;
-	}
-	
-	private Base64Coder() { }
-} //end Base64Coder class
-
 class NewPlayerException extends Exception {
 	public NewPlayerException() {
 		super();
@@ -2033,9 +1755,6 @@ class HighScoreModel extends AbstractTableModel {
 				for (int w = 0; w < CardPanel.NSTATS; w++) {
 					if ((line = in.readLine()) == null) break;
 					plrScores.add(new Integer(line));
-				}
-				for (int w = 0; w < CardPanel.NCHEATS; w++) {
-					if ((line = in.readLine()) == null) break;
 				}
 				if ((line = in.readLine()) == null) continue;
 				plrScores.add(new Boolean(line));
