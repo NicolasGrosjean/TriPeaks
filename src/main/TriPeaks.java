@@ -1194,7 +1194,7 @@ class CardPanel extends JPanel implements MouseListener {
 		disIndex = 51; //the discard pile index is back to 51
 
 		if (newGame) {
-			remTries = 3; // 3 tries
+			remTries = 2; // 2 tries
 			gameScore = 0; //the game score is reset
 			numGames++; //increment the number of games played
 			sesGames++; //increment the number of session games
