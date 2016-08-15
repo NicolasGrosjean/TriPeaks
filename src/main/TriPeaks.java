@@ -1,5 +1,8 @@
 package main;
 
+/**
+ * Adapted from https://sourceforge.net/projects/tripeaks/
+ */
 import java.awt.*;
 
 import javax.swing.*;
@@ -13,13 +16,6 @@ import javax.imageio.*;
 
 import java.io.*;
 import java.awt.image.*;
-import java.security.*;
-
-import javax.crypto.*;
-
-import java.security.spec.*;
-
-import javax.crypto.spec.*;
 
 import java.text.DecimalFormat;
 
@@ -31,7 +27,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	private final String settingsFile = "TriSet";
 	private String uName; //name of the player
 	private JPanel statsPanel; //the panel with the stats
-	private boolean seenWarn = false;
 	private JCheckBoxMenuItem statsCheck;
 	
 	public TriPeaks(String title) { //class constructor
@@ -926,28 +921,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 			}
 		}
 		return dim; //if something BAD happened, return 0 x 0
-	}
-	
-	public static String rot13(String in) { //calculates the ROT13 cipher of a string
-		String low = in.toLowerCase(); //only lowercase characters are wanted
-		StringBuffer out = new StringBuffer(); //a buffer for the output string
-		final String letters = "abcdefghijklmnopqrstuvwxyz"; //all the letters of the alphabet
-		int index, newIndex; //two index holders
-		for (int q = 0; q < low.length(); q++) { //go through the letters in the input string
-			index = letters.indexOf(low.charAt(q)); //find the current character's index in the alphabet string
-			if (index == -1) continue; //if the letter wasn't found, skip it
-			newIndex = (index + 13) % 26; //do the rotation by 13
-			out.append(letters.charAt(newIndex)); //append the ciphered characted
-		}
-		return out.toString(); //return the ciphered string
-	}
-	
-	public static String backward(String in) { //reverse a string
-		StringBuffer out = new StringBuffer(); //buffer for output
-		for (int q = 1; q <= in.length(); q++) { //go through the characters
-			out.append(in.charAt(in.length() - q)); //append that character from the end of the string
-		}
-		return out.toString(); //return the reversed string
 	}
 	
 	public void readScoreSets() throws NewPlayerException { //reads the scores from the current user's file.
