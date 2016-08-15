@@ -1017,54 +1017,50 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	}
 	
 	public void readScoreSets() throws NewPlayerException { //reads the scores from the current user's file.
-		String fileName = rot13(uName); //the filename is the ROT13 cipher of their name
+		String fileName = uName; //the filename is the ROT13 cipher of their name
 		File file = new File(dirName + File.separator + fileName + ".txt"); //get the file
 		String line = null; //placeholder for the line
 		int[] stats = new int[CardPanel.NSTATS]; //the array for the stats
 		boolean[] cheats = new boolean[CardPanel.NCHEATS]; //cheats array for the cheat menu items
 		boolean hasCheated = false; //the cheat status
 		int lNum = -1; //line number (incremented before setting value)
-		Encryptor dec = new Encryptor(backward(fileName)); //set up the encryptor to decrypt the lines (the passphrase is the filename backwards)
 		BufferedReader in = null;
 		try {
-			if (file == null) throw new NewPlayerException("New Player: " + uName); //if the file is null, don't do anything
 			in = new BufferedReader(new FileReader(file)); //create a buffered reader for the file
-			String deced;
 			while ((line = in.readLine()) != null) { //read the lines one-by-one
 				lNum++; //increment the line number
 				if (lNum > (stats.length + cheats.length + 6)) break; //stop if there are more lines than needed
-				deced = dec.decrypt(line);
-				if ((lNum >= 0) && (lNum < stats.length)) stats[lNum] = Integer.parseInt(deced); //set the value based on the decrypted line, if the line belongs to the stats array
-				else if ((lNum >= stats.length) && (lNum < (stats.length + cheats.length))) cheats[lNum - stats.length] = Boolean.parseBoolean(deced); //set the values based on the decrypted line, if the line belongs to the cheats array
-				else if (lNum == stats.length + cheats.length) hasCheated = Boolean.parseBoolean(deced);
-				else if (lNum == stats.length + cheats.length + 1) board.setCardFront(deced);
-				else if (lNum == stats.length + cheats.length + 2) board.setCardBack(deced);
+				if ((lNum >= 0) && (lNum < stats.length)) stats[lNum] = Integer.parseInt(line); //set the value based on the decrypted line, if the line belongs to the stats array
+				else if ((lNum >= stats.length) && (lNum < (stats.length + cheats.length))) cheats[lNum - stats.length] = Boolean.parseBoolean(line); //set the values based on the decrypted line, if the line belongs to the cheats array
+				else if (lNum == stats.length + cheats.length) hasCheated = Boolean.parseBoolean(line);
+				else if (lNum == stats.length + cheats.length + 1) board.setCardFront(line);
+				else if (lNum == stats.length + cheats.length + 2) board.setCardBack(line);
 				else if (lNum == stats.length + cheats.length + 3) {
 					int cm1, cm2; //two commas
-					cm1 = deced.indexOf(','); //get the indexes of the two commas
-					cm2 = deced.lastIndexOf(',');
+					cm1 = line.indexOf(','); //get the indexes of the two commas
+					cm2 = line.lastIndexOf(',');
 					if ((cm1 == -1) || (cm2 == -1) || (cm1 == cm2)) continue; //if either comma isn't found, exit
-					board.setBackColor(new Color(Integer.parseInt(deced.substring(0, cm1)), Integer.parseInt(deced.substring(cm1 + 1, cm2)), Integer.parseInt(deced.substring(cm2 + 1)))); //convert to integer and set the color
+					board.setBackColor(new Color(Integer.parseInt(line.substring(0, cm1)), Integer.parseInt(line.substring(cm1 + 1, cm2)), Integer.parseInt(line.substring(cm2 + 1)))); //convert to integer and set the color
 				}
 				else if (lNum == stats.length + cheats.length + 4) {
 					int dash, cm1, cm2;
-					dash = deced.indexOf('-');
-					cm1 = deced.indexOf(',');
-					cm2 = deced.lastIndexOf(',');
+					dash = line.indexOf('-');
+					cm1 = line.indexOf(',');
+					cm2 = line.lastIndexOf(',');
 					if ((dash == -1) || (cm1 == -1) || (cm2 == -1) || (cm1 == cm2)) continue;
-					int bold = (Boolean.parseBoolean(deced.substring(dash + 1, cm1))) ? Font.BOLD : 0;
-					int ital = (Boolean.parseBoolean(deced.substring(cm1 + 1, cm2))) ? Font.ITALIC : 0;
-					board.setTextFont(new Font(deced.substring(0, dash), bold | ital, Integer.parseInt(deced.substring(cm2 + 1))));
+					int bold = (Boolean.parseBoolean(line.substring(dash + 1, cm1))) ? Font.BOLD : 0;
+					int ital = (Boolean.parseBoolean(line.substring(cm1 + 1, cm2))) ? Font.ITALIC : 0;
+					board.setTextFont(new Font(line.substring(0, dash), bold | ital, Integer.parseInt(line.substring(cm2 + 1))));
 				}
 				else if (lNum == stats.length + cheats.length + 5) {
 					int cm1, cm2;
-					cm1 = deced.indexOf(',');
-					cm2 = deced.lastIndexOf(',');
+					cm1 = line.indexOf(',');
+					cm2 = line.lastIndexOf(',');
 					if ((cm1 == -1) || (cm2 == -1) || (cm1 == cm2)) continue;
-					board.setFontColor(new Color(Integer.parseInt(deced.substring(0, cm1)), Integer.parseInt(deced.substring(cm1 + 1, cm2)), Integer.parseInt(deced.substring(cm2 + 1))));
+					board.setFontColor(new Color(Integer.parseInt(line.substring(0, cm1)), Integer.parseInt(line.substring(cm1 + 1, cm2)), Integer.parseInt(line.substring(cm2 + 1))));
 				}
 				else if (lNum == stats.length + cheats.length + 6) {
-					if (Long.parseLong(deced) != file.lastModified()) {
+					if (Long.parseLong(line) != file.lastModified()) {
 						file.delete();
 						JOptionPane.showMessageDialog(this, "Score file has been modified since\nlast used by TriPeaks!\nThe file HAS BEEN DELETED!!!\nPlease don't cheat like that again!", "Cheating Error", JOptionPane.ERROR_MESSAGE);
 						board.setDefaults();
@@ -1095,46 +1091,44 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	}
 	
 	public void writeScoreSets() { //writes the scores for the current player
-		String fileName = rot13(uName); //filename is the ROT13 cipher of the username
+		String fileName = uName; //filename is the ROT13 cipher of the username
 		File setFile = new File(dirName + File.separator + fileName + ".txt"); //create the file
-		Encryptor enc = new Encryptor(backward(fileName)); //set up the encryptor to encrpyt the lines	
 		try {
-			if (setFile == null) return; //if the file doesn't exist, don't do anything
 			BufferedWriter out = new BufferedWriter(new FileWriter(setFile)); //create a buffered writer for the file
 			boolean[] cheats = board.getCheats();
 			Color boardColor = board.getBackColor();
 			Font textFont = board.getTextFont();
 			Color fontColor = board.getFontColor();
 			long dtMod = new Date().getTime();
-			out.write(enc.encrypt("" + board.getScore())); //player's overall score
+			out.write("" + board.getScore()); //player's overall score
 			out.newLine(); //new line
-			out.write(enc.encrypt("" + board.getHighScore())); //player's highes score
+			out.write("" + board.getHighScore()); //player's highes score
 			out.newLine();
-			out.write(enc.encrypt("" + board.getLowScore())); //player's lowest score
+			out.write("" + board.getLowScore()); //player's lowest score
 			out.newLine();
-			out.write(enc.encrypt("" + board.getNumGames())); //number of games played by the user
+			out.write("" + board.getNumGames()); //number of games played by the user
 			out.newLine();
-			out.write(enc.encrypt("" + board.getHighStreak())); //player's longest streak
+			out.write("" + board.getHighStreak()); //player's longest streak
 			out.newLine();
-			out.write(enc.encrypt("" + cheats[0])); //first cheat
+			out.write("" + cheats[0]); //first cheat
 			out.newLine();
-			out.write(enc.encrypt("" + cheats[1])); //second cheat
+			out.write("" + cheats[1]); //second cheat
 			out.newLine();
-			out.write(enc.encrypt("" + cheats[2])); //third cheat
+			out.write("" + cheats[2]); //third cheat
 			out.newLine();
-			out.write(enc.encrypt("" + board.hasCheated())); //player's cheat status
+			out.write("" + board.hasCheated()); //player's cheat status
 			out.newLine();
-			out.write(enc.encrypt("" + board.getCardFront()));
+			out.write("" + board.getCardFront());
 			out.newLine();
-			out.write(enc.encrypt("" + board.getCardBack()));
+			out.write("" + board.getCardBack());
 			out.newLine();
-			out.write(enc.encrypt(boardColor.getRed() + "," + boardColor.getGreen() + "," + boardColor.getBlue()));
+			out.write(boardColor.getRed() + "," + boardColor.getGreen() + "," + boardColor.getBlue());
 			out.newLine();
-			out.write(enc.encrypt(textFont.getFamily() + "-" + textFont.isBold() + "," + textFont.isItalic() + "," + textFont.getSize()));
+			out.write(textFont.getFamily() + "-" + textFont.isBold() + "," + textFont.isItalic() + "," + textFont.getSize());
 			out.newLine();
-			out.write(enc.encrypt(fontColor.getRed() + "," + fontColor.getGreen() + "," + boardColor.getBlue()));
+			out.write(fontColor.getRed() + "," + fontColor.getGreen() + "," + boardColor.getBlue());
 			out.newLine();
-			out.write(enc.encrypt("" + 1000 * ((long) dtMod / 1000)));
+			out.write("" + 1000 * ((long) dtMod / 1000));
 			out.close(); //close the file
 			setFile.setLastModified(dtMod);
 		}
@@ -1152,7 +1146,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		String defName = "";
 		try {
 			is = new FileInputStream(settingsFile);
-			if (is == null) throw new Exception("First Time Running");
 			BufferedReader in = new BufferedReader(new InputStreamReader(is)); //create a buffered reader for the file
 			if ((line = in.readLine()) != null) { //read the line
 				defName = line;
@@ -1189,7 +1182,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		}
 		File setFile = new File(settingsFile); //create the file
 		try {
-			if (setFile == null) return; //if the file doesn't exist, don't do anything
 			BufferedWriter out = new BufferedWriter(new FileWriter(setFile)); //create a buffered writer for the file
 			out.write(uName); //write the default username
 			out.close(); //close the file
@@ -1268,7 +1260,6 @@ class CardPanel extends JPanel implements MouseListener {
 				if (!cheats[0]) imgPath = "CardSets" + File.separator + "Backs" + File.separator + backStyle + ".png"; //get the image for the back of the card - if the first cheat isn't on
 				else imgPath = "CardSets" + File.separator + "Fronts" + File.separator + frontFolder + File.separator + theCards[q].suitAsString() + (theCards[q].getValue() + 1) + ".png"; //get the corresponding front of the card if the cheat is on...
 			}
-			if (imgPath == null) continue;
 			try {
 				img = ImageIO.read(new File(imgPath)); //try to read the image
 			}
@@ -2035,32 +2026,28 @@ class HighScoreModel extends AbstractTableModel {
 		File[] scoreFiles = scoresDir.listFiles();
 		BufferedReader in = null;
 		
-		ArrayList<ArrayList> scoreLists = new ArrayList<ArrayList>();
+		ArrayList<ArrayList<Object>> scoreLists = new ArrayList<ArrayList<Object>>();
 		ArrayList<Object> plrScores;
 		
-		String fileName, deced, line, name;
+		String fileName, line;
 		int dotIndex;
-		Encryptor dec;
 		for (int q = 0; q < scoreFiles.length; q++) {
 			plrScores = new ArrayList<Object>();
 			fileName = scoreFiles[q].getName();
 			if (!fileName.endsWith(".txt")) continue;
 			dotIndex = fileName.indexOf('.');
-			dec = new Encryptor(TriPeaks.backward(fileName.substring(0, dotIndex)));
-			plrScores.add(TriPeaks.rot13(fileName.substring(0, dotIndex)));
+			plrScores.add(fileName.substring(0, dotIndex));
 			try {
 				in = new BufferedReader(new FileReader(scoreFiles[q]));
 				for (int w = 0; w < CardPanel.NSTATS; w++) {
 					if ((line = in.readLine()) == null) break;
-					deced = dec.decrypt(line);
-					plrScores.add(new Integer(deced));
+					plrScores.add(new Integer(line));
 				}
 				for (int w = 0; w < CardPanel.NCHEATS; w++) {
 					if ((line = in.readLine()) == null) break;
 				}
 				if ((line = in.readLine()) == null) continue;
-				deced = dec.decrypt(line);
-				plrScores.add(new Boolean(deced));
+				plrScores.add(new Boolean(line));
 				scoreLists.add(plrScores);
 			} catch (FileNotFoundException eFNF) { //Should never happen b/c we are opening files listed in a folder...
 				System.out.println(eFNF.getMessage());
@@ -2083,8 +2070,8 @@ class HighScoreModel extends AbstractTableModel {
 		data = new Object[scoreLists.size()][getColumnCount()];
 		
 		int q = 0;
-		for (Iterator<ArrayList> it1 = scoreLists.iterator(); it1.hasNext(); q++) {
-			ArrayList score = it1.next();
+		for (Iterator<ArrayList<Object>> it1 = scoreLists.iterator(); it1.hasNext(); q++) {
+			ArrayList<Object> score = it1.next();
 			data[q][0] = TriPeaks.capitalize((String) score.get(0));
 			data[q][1] = score.get(1);
 			if (((Integer) score.get(4)).intValue() != 0) data[q][2] = new Double((double) ((Integer) score.get(1)).intValue() / ((Integer) score.get(4)).intValue());
@@ -2118,10 +2105,6 @@ class CurrencyRenderer extends DefaultTableCellRenderer {
 			num = ((Double) value).doubleValue();
 		}
 		else {
-			setText("");
-			return;
-		}
-		if (format == null) {
 			setText("");
 			return;
 		}
