@@ -1,6 +1,12 @@
 package main;
 
 /**
+ * Improvement suggestions:
+ *  - Add the name of the player at top right
+ *  - Add the number of 3-peaks completed (current and historic)
+ */
+
+/**
  * Adapted from https://sourceforge.net/projects/tripeaks/
  */
 import java.awt.*;
@@ -1194,10 +1200,14 @@ class CardPanel extends JPanel implements MouseListener {
 		disIndex = 51; //the discard pile index is back to 51
 
 		if (newGame) {
+			if ((numGames > 0) && (gameScore > 0)) {
+				averageScore = (averageScore * numGames + gameScore) / (numGames + 1);
+			}
 			remTries = 2; // 2 tries
 			gameScore = 0; //the game score is reset
+			sesScore = 0;
 			numGames++; //increment the number of games played
-			sesGames++; //increment the number of session games
+			sesGames++; //increment the number of session games			
 		}
 		
 		repaint(); //repaint the board
