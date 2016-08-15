@@ -83,6 +83,8 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		col3.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 10)); //10 on the right
 		statsPanel.add(col3);
 		
+		statsPanel.setVisible(false);
+		
 		curGame = new JLabel("Game Winnings: ?"); //create the label, with the default text
 		curGame.setAlignmentX(Component.LEFT_ALIGNMENT); //it should be left-aligned within the panel
 		col1.add(curGame); //add it to the first column
@@ -694,20 +696,20 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		});
 		optionMenu.add(fontSelect); //add the item to the menu.
 		
-		statsCheck = new JCheckBoxMenuItem("Show stats", true); //a checkbox to show/hide stats (show by default)
-		statsCheck.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
-		statsCheck.getAccessibleContext().setAccessibleDescription("Show / Hide stats");
-		statsCheck.addItemListener(new ItemListener() { //add an Item-event listener - changes to the item
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) { //if it got selected
-					statsPanel.setVisible(true); //show the stats panel
-					updateStats(); //set the labels
-				}
-				else statsPanel.setVisible(false); //hide the stats panel
-				pack(); //re-pack the frame
-			}
-		});
-		optionMenu.add(statsCheck); //add it to the menu
+//		statsCheck = new JCheckBoxMenuItem("Show stats", true); //a checkbox to show/hide stats (show by default)
+//		statsCheck.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+//		statsCheck.getAccessibleContext().setAccessibleDescription("Show / Hide stats");
+//		statsCheck.addItemListener(new ItemListener() { //add an Item-event listener - changes to the item
+//			public void itemStateChanged(ItemEvent e) {
+//				if (e.getStateChange() == ItemEvent.SELECTED) { //if it got selected
+//					statsPanel.setVisible(true); //show the stats panel
+//					updateStats(); //set the labels
+//				}
+//				else statsPanel.setVisible(false); //hide the stats panel
+//				pack(); //re-pack the frame
+//			}
+//		});
+//		optionMenu.add(statsCheck); //add it to the menu
 		
 		JMenuItem resetDefs = new JMenuItem("Reset Defaults"); //Resets settings to their defaults
 		resetDefs.getAccessibleContext().setAccessibleDescription("Reset the settings to their default values"); //set the tooltip text
