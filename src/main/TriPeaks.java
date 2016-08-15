@@ -725,104 +725,104 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		
 		menuBar.add(Box.createHorizontalGlue()); //The next menu will be on the right
 		
-		JMenu helpMenu = new JMenu("Help"); //Help menu
-		helpMenu.setMnemonic(KeyEvent.VK_H); //Accessed with Alt+H
-		helpMenu.getAccessibleContext().setAccessibleDescription("Game Help and Information"); //tool-tip text
-		menuBar.add(helpMenu); //add it to the menu bar
-		
-		JMenuItem gameHelp = new JMenuItem("Help", getImageIcon("Images" + File.separator + "help.png")); //basic explanation of gameplay
-		gameHelp.getAccessibleContext().setAccessibleDescription("How to Play & Strategies");
-		gameHelp.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
-		gameHelp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				final JDialog helpDialog = new JDialog(TriPeaks.this, "How to Play"); //create a new dialog box
-				
-				Font titleFont = new Font("SansSerif", Font.BOLD, 16);
-				Font textFont = new Font("Serif", Font.PLAIN, 14);
-				
-				JLabel titleHelp = new JLabel("How to Play"); //the title text
-				titleHelp.setFont(titleFont); //make it big and bold
-				titleHelp.setHorizontalAlignment(JLabel.CENTER); //make it centered
-				
-				JTextArea textHelp = new JTextArea(); //create the area for the text
-				textHelp.setText("   The goal of the game is to remove all the cards: you can remove any card that is adjacent in value. (e.g. If you have an Ace, you can remove a King or a Two). Suit doesn't matter.\n   If there is no adjacent card, you can take a card from the deck, with a penalty of $5. For the first card you remove, you get $1; for the second $2; $3 for the third; and so on. However, when you take a card from the deck, the streak gets reset to 0.\n   You get $15 for the first two peaks that you reach, and $30 for the last one (i.e. clearing the board). You can redeal before you clear the board AND still have some cards in the deck, but with a penalty of $5 for every card on the board. There is no penalty for redealing if your deck is empty or if you've cleared the board."); //set the text of the text area
-				textHelp.setEditable(false); //the user can't change the help text
-				textHelp.setFont(textFont); //set the font for the text
-				textHelp.setLineWrap(true); //the text will wrap at the edges
-				textHelp.setWrapStyleWord(true); //the text will only wrap whole words
-				
-				JScrollPane helpScroll = new JScrollPane(textHelp); //used to add scrollbars to the text area
-				helpScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-				
-				JPanel helpPanel = new JPanel(new BorderLayout(3, 3)); //create a panel to hold the scroll pane and title
-				helpPanel.add(titleHelp, BorderLayout.PAGE_START); //add the title to the top
-				helpPanel.add(helpScroll, BorderLayout.CENTER); //add the scroll pane to the center
-				//same thing for the srategy and cheat text
-				JLabel titleStrat = new JLabel("Game Strategies");
-				titleStrat.setFont(titleFont);
-				titleStrat.setHorizontalAlignment(JLabel.CENTER);
-				
-				JTextArea textStrat = new JTextArea();
-				textStrat.setText("   The more cards you get in a row, the higher your score. However, there are times when you have to choose between cards. If those cards get you the same score, there are several strategies involved:\n   1)  Pick the card that opens up more cards That will give you more to choose from on your next move. It might go with the card you just took.\n   2)  If one on the choices is a peak, don't choose the peak. It doesn't open any cards.\n   Other than choosing cards, try working out a streak in your head. If they're the same, go with the one that opens more cards.");
-				textStrat.setEditable(false);
-				textStrat.setFont(textFont);
-				textStrat.setLineWrap(true);
-				textStrat.setWrapStyleWord(true);
-					
-				JScrollPane stratScroll = new JScrollPane(textStrat);
-				stratScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-				
-				JPanel stratPanel = new JPanel(new BorderLayout(3, 3));
-				stratPanel.add(titleStrat, BorderLayout.PAGE_START);
-				stratPanel.add(stratScroll, BorderLayout.CENTER);
-				
-				JTabbedPane helpTabs = new JTabbedPane(); //Initialize the tabbed pane
-				
-				helpTabs.addTab("How To Play", getImageIcon("Images" + File.separator + "help.png"), helpPanel, "How to Play"); //add the tab to the tabbed pane
-				helpTabs.setMnemonicAt(0, KeyEvent.VK_P); //Alt+P
-				helpTabs.addTab("Strategies", getImageIcon("Images" + File.separator + "Strategy.png"), stratPanel, "Game Strategies");
-				helpTabs.setMnemonicAt(1, KeyEvent.VK_S); //Alt+S
-				
-				helpScroll.getVerticalScrollBar().setValue(0);
-				stratScroll.getVerticalScrollBar().setValue(0);
-				
-				JButton closeButton = new JButton("Close"); //button to close the dialog
-				closeButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-						helpDialog.setVisible(false); //hide the dialog
-						helpDialog.dispose(); //dispose of the resources for the dialog
-					}
-				});
-				
-				JPanel closePanel = new JPanel(); //a panel for the butotn
-				closePanel.setLayout(new BoxLayout(closePanel, BoxLayout.LINE_AXIS)); //Align stuff on the X-Axis
-				closePanel.add(Box.createHorizontalGlue()); //right-align the button
-				closePanel.add(closeButton); //add the button to the panel
-				closePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
-				
-				JPanel contentPanel = new JPanel(new BorderLayout(5, 5)); //create a panel to be the content panel, with a 5-pixel gap between elements
-				contentPanel.add(helpTabs, BorderLayout.CENTER); //add the tabbed pane to the center
-				contentPanel.add(closePanel, BorderLayout.PAGE_END); //add the panel with the close-button to the bottom
-				helpDialog.setContentPane(contentPanel); //set the panel as the content pane
-				
-				helpDialog.setSize(new Dimension(400, 400)); //make the dialog 400 x 400 pixels
-				helpDialog.setLocationRelativeTo(TriPeaks.this); //make it relative to the frame (in the center of the frame)
-				helpDialog.setVisible(true); //show the dialog
-			}
-		});
-		helpMenu.add(gameHelp); //add the item to the menu
-		
-		helpMenu.addSeparator(); //add a separator to the menu
-		
-		JMenuItem about = new JMenuItem("About..."); //about the program/creator
-		about.setMnemonic(KeyEvent.VK_A);
-		about.getAccessibleContext().setAccessibleDescription("About the creator and program");
-		about.addActionListener(new ActionListener() { //add an action listener
-			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(TriPeaks.this, "TriPeaks Solitaire implementation by Valera Trubachev.\nWritten in Java using Kate in Linux.\n(C) 2008\nSpecial thanks to Christian d'Heureuse\nfor his Base64 encoder/decoder."); //kind of like some credits...
-			}
-		});
-		helpMenu.add(about); //add the item to the menu
+//		JMenu helpMenu = new JMenu("Help"); //Help menu
+//		helpMenu.setMnemonic(KeyEvent.VK_H); //Accessed with Alt+H
+//		helpMenu.getAccessibleContext().setAccessibleDescription("Game Help and Information"); //tool-tip text
+//		menuBar.add(helpMenu); //add it to the menu bar
+//		
+//		JMenuItem gameHelp = new JMenuItem("Help", getImageIcon("Images" + File.separator + "help.png")); //basic explanation of gameplay
+//		gameHelp.getAccessibleContext().setAccessibleDescription("How to Play & Strategies");
+//		gameHelp.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+//		gameHelp.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				final JDialog helpDialog = new JDialog(TriPeaks.this, "How to Play"); //create a new dialog box
+//				
+//				Font titleFont = new Font("SansSerif", Font.BOLD, 16);
+//				Font textFont = new Font("Serif", Font.PLAIN, 14);
+//				
+//				JLabel titleHelp = new JLabel("How to Play"); //the title text
+//				titleHelp.setFont(titleFont); //make it big and bold
+//				titleHelp.setHorizontalAlignment(JLabel.CENTER); //make it centered
+//				
+//				JTextArea textHelp = new JTextArea(); //create the area for the text
+//				textHelp.setText("   The goal of the game is to remove all the cards: you can remove any card that is adjacent in value. (e.g. If you have an Ace, you can remove a King or a Two). Suit doesn't matter.\n   If there is no adjacent card, you can take a card from the deck, with a penalty of $5. For the first card you remove, you get $1; for the second $2; $3 for the third; and so on. However, when you take a card from the deck, the streak gets reset to 0.\n   You get $15 for the first two peaks that you reach, and $30 for the last one (i.e. clearing the board). You can redeal before you clear the board AND still have some cards in the deck, but with a penalty of $5 for every card on the board. There is no penalty for redealing if your deck is empty or if you've cleared the board."); //set the text of the text area
+//				textHelp.setEditable(false); //the user can't change the help text
+//				textHelp.setFont(textFont); //set the font for the text
+//				textHelp.setLineWrap(true); //the text will wrap at the edges
+//				textHelp.setWrapStyleWord(true); //the text will only wrap whole words
+//				
+//				JScrollPane helpScroll = new JScrollPane(textHelp); //used to add scrollbars to the text area
+//				helpScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//				
+//				JPanel helpPanel = new JPanel(new BorderLayout(3, 3)); //create a panel to hold the scroll pane and title
+//				helpPanel.add(titleHelp, BorderLayout.PAGE_START); //add the title to the top
+//				helpPanel.add(helpScroll, BorderLayout.CENTER); //add the scroll pane to the center
+//				//same thing for the srategy and cheat text
+//				JLabel titleStrat = new JLabel("Game Strategies");
+//				titleStrat.setFont(titleFont);
+//				titleStrat.setHorizontalAlignment(JLabel.CENTER);
+//				
+//				JTextArea textStrat = new JTextArea();
+//				textStrat.setText("   The more cards you get in a row, the higher your score. However, there are times when you have to choose between cards. If those cards get you the same score, there are several strategies involved:\n   1)  Pick the card that opens up more cards That will give you more to choose from on your next move. It might go with the card you just took.\n   2)  If one on the choices is a peak, don't choose the peak. It doesn't open any cards.\n   Other than choosing cards, try working out a streak in your head. If they're the same, go with the one that opens more cards.");
+//				textStrat.setEditable(false);
+//				textStrat.setFont(textFont);
+//				textStrat.setLineWrap(true);
+//				textStrat.setWrapStyleWord(true);
+//					
+//				JScrollPane stratScroll = new JScrollPane(textStrat);
+//				stratScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//				
+//				JPanel stratPanel = new JPanel(new BorderLayout(3, 3));
+//				stratPanel.add(titleStrat, BorderLayout.PAGE_START);
+//				stratPanel.add(stratScroll, BorderLayout.CENTER);
+//				
+//				JTabbedPane helpTabs = new JTabbedPane(); //Initialize the tabbed pane
+//				
+//				helpTabs.addTab("How To Play", getImageIcon("Images" + File.separator + "help.png"), helpPanel, "How to Play"); //add the tab to the tabbed pane
+//				helpTabs.setMnemonicAt(0, KeyEvent.VK_P); //Alt+P
+//				helpTabs.addTab("Strategies", getImageIcon("Images" + File.separator + "Strategy.png"), stratPanel, "Game Strategies");
+//				helpTabs.setMnemonicAt(1, KeyEvent.VK_S); //Alt+S
+//				
+//				helpScroll.getVerticalScrollBar().setValue(0);
+//				stratScroll.getVerticalScrollBar().setValue(0);
+//				
+//				JButton closeButton = new JButton("Close"); //button to close the dialog
+//				closeButton.addActionListener(new ActionListener() {
+//					public void actionPerformed(ActionEvent evt) {
+//						helpDialog.setVisible(false); //hide the dialog
+//						helpDialog.dispose(); //dispose of the resources for the dialog
+//					}
+//				});
+//				
+//				JPanel closePanel = new JPanel(); //a panel for the butotn
+//				closePanel.setLayout(new BoxLayout(closePanel, BoxLayout.LINE_AXIS)); //Align stuff on the X-Axis
+//				closePanel.add(Box.createHorizontalGlue()); //right-align the button
+//				closePanel.add(closeButton); //add the button to the panel
+//				closePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
+//				
+//				JPanel contentPanel = new JPanel(new BorderLayout(5, 5)); //create a panel to be the content panel, with a 5-pixel gap between elements
+//				contentPanel.add(helpTabs, BorderLayout.CENTER); //add the tabbed pane to the center
+//				contentPanel.add(closePanel, BorderLayout.PAGE_END); //add the panel with the close-button to the bottom
+//				helpDialog.setContentPane(contentPanel); //set the panel as the content pane
+//				
+//				helpDialog.setSize(new Dimension(400, 400)); //make the dialog 400 x 400 pixels
+//				helpDialog.setLocationRelativeTo(TriPeaks.this); //make it relative to the frame (in the center of the frame)
+//				helpDialog.setVisible(true); //show the dialog
+//			}
+//		});
+//		helpMenu.add(gameHelp); //add the item to the menu
+//		
+//		helpMenu.addSeparator(); //add a separator to the menu
+//		
+//		JMenuItem about = new JMenuItem("About..."); //about the program/creator
+//		about.setMnemonic(KeyEvent.VK_A);
+//		about.getAccessibleContext().setAccessibleDescription("About the creator and program");
+//		about.addActionListener(new ActionListener() { //add an action listener
+//			public void actionPerformed(ActionEvent e) {
+//				JOptionPane.showMessageDialog(TriPeaks.this, "TriPeaks Solitaire implementation by Valera Trubachev.\nWritten in Java using Kate in Linux.\n(C) 2008\nSpecial thanks to Christian d'Heureuse\nfor his Base64 encoder/decoder."); //kind of like some credits...
+//			}
+//		});
+//		helpMenu.add(about); //add the item to the menu
 		
 		return menuBar; //return the finished menu bar
 	}
