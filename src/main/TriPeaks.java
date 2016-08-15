@@ -980,9 +980,9 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 			long dtMod = new Date().getTime();
 			out.write("" + board.getScore()); //player's overall score
 			out.newLine(); //new line
-			out.write("" + board.getHighScore()); //player's highes score
+			out.write("" + board.getHighScore()); //player's highest score
 			out.newLine();
-			out.write("" + board.getLowScore()); //player's lowest score
+			out.write("" + board.getAverageScore()); //player's average score
 			out.newLine();
 			out.write("" + board.getNumGames()); //number of games played by the user
 			out.newLine();
@@ -1086,8 +1086,8 @@ class CardPanel extends JPanel implements MouseListener {
 	private int numGames = 0; //number of player games
 	private int sesGames = 0; //number of session games
 	private int highScore = 0; //highest score
-	private int lowScore = 0; //lowest score
-	private int highStreak = 0; //longest strea
+	private int averageScore = 0; //average score
+	private int highStreak = 0; //longest streak
 	private String status = ""; //status text (used later)
 	private String frontFolder = "Default"; //folder in which the fronts of the cards are stored
 	private String backStyle = "Default"; //style for the back of the cards
@@ -1221,7 +1221,7 @@ class CardPanel extends JPanel implements MouseListener {
 		numGames = 0;
 		sesGames = 0;
 		highScore = 0;
-		lowScore = 0;
+		averageScore = 0;
 		highStreak = 0;
 		status = "";
 		
@@ -1397,8 +1397,8 @@ class CardPanel extends JPanel implements MouseListener {
 		return highScore;
 	}
 	
-	public int getLowScore() { //returns the low score
-		return lowScore;
+	public int getAverageScore() { //returns the low score
+		return averageScore;
 	}
 	
 	public int getHighStreak() { //returns the longest streak
@@ -1422,14 +1422,14 @@ class CardPanel extends JPanel implements MouseListener {
 	}
 	
 	public int[] getAllStats() { //returns all the stats in an array
-		int[] retVal = {getScore(), getGameScore(), getSesScore(), getStreak(), getNumGames(), getSesGames(), getHighScore(), getLowScore(), getHighStreak()}; //the array of stats
+		int[] retVal = {getScore(), getGameScore(), getSesScore(), getStreak(), getNumGames(), getSesGames(), getHighScore(), getAverageScore(), getHighStreak()}; //the array of stats
 		return retVal;
 	}
 	
 	public void setStats(int[] stats) { //sets all the stats based on the array values
 		score = stats[0]; //the programmer knows the order of the stats to be passed into this method:
 		highScore = stats[1]; //overall score, high score, low score, number of games, and longest streak
-		lowScore = stats[2];
+		averageScore = stats[2];
 		numGames = stats[3];
 		highStreak = stats[4];
 	}
@@ -1615,7 +1615,7 @@ class NewPlayerException extends Exception {
 }
 
 class HighScoreModel extends AbstractTableModel {
-	public static final String[] columnNames = {"Player Name", "Score", "Average", "Most Won", "Most Lost", "Longest Streak", "# of games", "Has Cheated"};
+	public static final String[] columnNames = {"Player Name", "Best", "Average", "Number of games"};
 	
 	private Object[][] data;
 	
@@ -1683,13 +1683,8 @@ class HighScoreModel extends AbstractTableModel {
 			ArrayList<Object> score = it1.next();
 			data[q][0] = TriPeaks.capitalize((String) score.get(0));
 			data[q][1] = score.get(1);
-			if (((Integer) score.get(4)).intValue() != 0) data[q][2] = new Double((double) ((Integer) score.get(1)).intValue() / ((Integer) score.get(4)).intValue());
-			else data[q][2] = new Double(0.0);
-			data[q][3] = score.get(2);
-			data[q][4] = score.get(3);
-			data[q][5] = score.get(5);
-			data[q][6] = score.get(4);
-			data[q][7] = score.get(6);
+			data[q][2] = score.get(2);
+			data[q][3] = score.get(3);
 		}
 		
 		return true;
@@ -1706,11 +1701,11 @@ class CurrencyRenderer extends DefaultTableCellRenderer {
 		DecimalFormat format = null;
 		double num = 0.0;
 		if (value.getClass() == Integer.class) {
-			format = new DecimalFormat("$###,###");
+			format = new DecimalFormat("###,###");
 			num = ((Integer) value).intValue();
 		}
 		else if (value.getClass() == Double.class) {
-			format = new DecimalFormat("$###,##0.00");
+			format = new DecimalFormat("###,##0.00");
 			num = ((Double) value).doubleValue();
 		}
 		else {
