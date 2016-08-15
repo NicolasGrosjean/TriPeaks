@@ -20,12 +20,15 @@ import java.util.*;
 
 import javax.imageio.*;
 
+import texts.Text;
+import texts.TextFrancais;
+
 import java.io.*;
 import java.awt.image.*;
-
 import java.text.DecimalFormat;
 
 public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame that listens to window events
+	public static Text text = new TextFrancais();
 	private CardPanel board; //the panel with the cards
 	JLabel curGame, maxMin, curStr, sesWin, sesAvg, sesGame, plrGame, plrAvg, maxStr; //the labels for the stats
 	public static final String scoresDir = "Scores";
@@ -63,7 +66,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS)); //align stuff on the Y-Axis
 		setJMenuBar(createMenuBar()); //set the menubar for the frame
 		
-		board = new CardPanel(); //create the panel with the cards
+		board = new CardPanel(text); //create the panel with the cards
 		getContentPane().add(board); //add it to the frame
 		
 		statsPanel = new JPanel(); //create the stats panel
@@ -135,12 +138,12 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	public JMenuBar createMenuBar() { //creates the menu bar
 		JMenuBar menuBar = new JMenuBar(); //init the menu bar
 		
-		JMenu gameMenu = new JMenu("Game"); //game menu
+		JMenu gameMenu = new JMenu(text.game()); //game menu
 		gameMenu.setMnemonic(KeyEvent.VK_G); //can be opened with Alt+G
 		gameMenu.getAccessibleContext().setAccessibleDescription("Game Playing and Operation"); //the tool-tip text
 		menuBar.add(gameMenu); //add the menu to the menu bar
 		
-		JMenuItem deal = new JMenuItem("Deal"); //redeal menu item
+		JMenuItem deal = new JMenuItem(text.newGame()); //redeal menu item
 		deal.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0)); //accessed with F2
 		deal.addActionListener(new ActionListener() { //add an action listener to it
 			public void actionPerformed(ActionEvent e) {
@@ -149,12 +152,12 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		});
 		gameMenu.add(deal); //add the menu item to the menu
 		
-		JMenuItem switchPlr = new JMenuItem("Switch Player..."); //switch players
+		JMenuItem switchPlr = new JMenuItem(text.switchPlayer()); //switch players
 		switchPlr.setMnemonic(KeyEvent.VK_P); //Alt+P
-		switchPlr.getAccessibleContext().setAccessibleDescription("Change the current player"); //Tool-tip text
+		switchPlr.getAccessibleContext().setAccessibleDescription(text.switchPlayerTP()); //Tool-tip text
 		switchPlr.addActionListener(new ActionListener() { //add an action listener
 			public void actionPerformed(ActionEvent e) {
-				String tempName = JOptionPane.showInputDialog(TriPeaks.this, "Player Name:", uName); //ask for the user's name
+				String tempName = JOptionPane.showInputDialog(TriPeaks.this, text.playerName(), uName); //ask for the user's name
 				if ((tempName != null) && (!tempName.equals(""))) { //if it's not null or empty
 					writeScoreSets(); //write the current user's score
 					board.reset();
@@ -172,18 +175,18 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		});
 		gameMenu.add(switchPlr); //add the item to the menu
 		
-		JMenuItem highScores = new JMenuItem("High Scores");
+		JMenuItem highScores = new JMenuItem(text.highScore());
 		highScores.setMnemonic(KeyEvent.VK_H);
 		highScores.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.CTRL_MASK));
-		highScores.getAccessibleContext().setAccessibleDescription("Show high score table");
+		highScores.getAccessibleContext().setAccessibleDescription(text.showHighScore());
 		highScores.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				final JDialog scoresDialog = new JDialog(TriPeaks.this, "High Scores", true);
+				final JDialog scoresDialog = new JDialog(TriPeaks.this, text.highScore(), true);
 				
 				JPanel contentPanel = new JPanel();
 				contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.PAGE_AXIS));
 				
-				JLabel title = new JLabel("High Score Table");
+				JLabel title = new JLabel(text.highScoreTable());
 				title.setFont(new Font("Serif", Font.BOLD, 20));
 				title.setAlignmentX(Component.CENTER_ALIGNMENT);
 				title.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -346,7 +349,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		});
 		gameMenu.add(highScores);
 		
-		JMenuItem resetStats = new JMenuItem("Reset"); //reset all stats/scores
+		JMenuItem resetStats = new JMenuItem(text.reset()); //reset all stats/scores
 		resetStats.setMnemonic(KeyEvent.VK_R); //Alt+R
 		resetStats.getAccessibleContext().setAccessibleDescription("Reset all stats and scores!"); //tooltip
 		resetStats.addActionListener(new ActionListener() {
@@ -362,7 +365,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		
 		gameMenu.addSeparator(); //add a separator to the menu
 		
-		JMenuItem exitGame = new JMenuItem("Exit"); //exit the game
+		JMenuItem exitGame = new JMenuItem(text.exit()); //exit the game
 		exitGame.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK)); //accessed with Ctrl+Q
 		getAccessibleContext().setAccessibleDescription("Exit the Game"); //tooltip
 		exitGame.addActionListener(new ActionListener() {
@@ -378,12 +381,12 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		optionMenu.getAccessibleContext().setAccessibleDescription("Game Options"); //set the tool-tip text
 		menuBar.add(optionMenu); //add it to the menu bar
 		
-		JMenuItem cardStyle = new JMenuItem("Card Style"); //Change the image that appears on the front and back of the cards
+		JMenuItem cardStyle = new JMenuItem(text.cardStyle()); //Change the image that appears on the front and back of the cards
 		cardStyle.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK)); //Alt+C
 		getAccessibleContext().setAccessibleDescription("Change the picture on the front and back of the cards"); //tooltip
 		cardStyle.addActionListener(new ActionListener() { //add an action listener
 			public void actionPerformed(ActionEvent e) {
-				final JDialog styleDialog = new JDialog(TriPeaks.this, "Card Style"); //create a dialog box for the style
+				final JDialog styleDialog = new JDialog(TriPeaks.this, text.cardStyle()); //create a dialog box for the style
 				final String oldFront = board.getCardFront();
 				final String oldBack = board.getCardBack();
 				final JTabbedPane stylesTabs = new JTabbedPane(); //create a tabbed pane
@@ -473,7 +476,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 				stylesTabs.addTab("Fronts", getImageIcon("Images" + File.separator + "Front.png"), frontsPanel, "Card Fronts"); //same thing - add a tab for the front styles
 				stylesTabs.setMnemonicAt(1, KeyEvent.VK_F); //Alt+F
 				
-				JButton closeButton = new JButton("Close"); //button to close the dialog
+				JButton closeButton = new JButton(text.close()); //button to close the dialog
 				closeButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
 						styleDialog.setVisible(false); //hide the dialog
@@ -481,7 +484,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 					}
 				});
 				
-				JButton revertButton = new JButton("Revert"); //revert button
+				JButton revertButton = new JButton(text.revert()); //revert button
 				revertButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
 						board.setCardBack(oldBack); //set the old values
@@ -509,7 +512,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		});
 		optionMenu.add(cardStyle); //add it to the menu
 		
-		JMenuItem boardColor = new JMenuItem("Board Background"); //change the boackground color of the board
+		JMenuItem boardColor = new JMenuItem(text.boardBackroung()); //change the boackground color of the board
 		boardColor.setMnemonic(KeyEvent.VK_B); //Alt+B
 		boardColor.getAccessibleContext().setAccessibleDescription("Change the Background Color of the board"); //tool-tip
 		boardColor.addActionListener(new ActionListener() {
@@ -521,7 +524,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		});
 		optionMenu.add(boardColor); //add the item to the menu
 		
-		JMenuItem fontSelect = new JMenuItem("Text Font"); //change the font of the text on the board
+		JMenuItem fontSelect = new JMenuItem(text.textFont()); //change the font of the text on the board
 		fontSelect.setMnemonic(KeyEvent.VK_F); //Alt+F
 		fontSelect.getAccessibleContext().setAccessibleDescription("Change the font of the text on the board"); //tool-tip text
 		fontSelect.addActionListener(new ActionListener() {
@@ -717,7 +720,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 //		});
 //		optionMenu.add(statsCheck); //add it to the menu
 		
-		JMenuItem resetDefs = new JMenuItem("Reset Defaults"); //Resets settings to their defaults
+		JMenuItem resetDefs = new JMenuItem(text.resetDefault()); //Resets settings to their defaults
 		resetDefs.getAccessibleContext().setAccessibleDescription("Reset the settings to their default values"); //set the tooltip text
 		resetDefs.addActionListener(new ActionListener() { //add action listener
 			public void actionPerformed(ActionEvent e) {
@@ -1037,7 +1040,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		catch (Exception eE) {
 			System.out.println("First time run");
 		}
-		uName = JOptionPane.showInputDialog(this, "Player Name:", defName); //ask for the player's name
+		uName = JOptionPane.showInputDialog(this, text.playerName(), defName); //ask for the player's name
 		if ((uName == null) || (uName.equals(""))) System.exit(0); //if the name is empty or Cancel was pressed, exit
 		try {
 			readScoreSets(); //read the scores for the player
@@ -1072,6 +1075,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 } //end class TriPeaks
 
 class CardPanel extends JPanel implements MouseListener {
+	private Text text;
 	private Color backColor = (Color.GREEN).darker().darker(); //background color of the board
 	private Color fontColor = Color.WHITE;
 	private Font textFont = new Font("Serif", Font.BOLD, 14);
@@ -1098,7 +1102,8 @@ class CardPanel extends JPanel implements MouseListener {
 	private String frontFolder = "Default"; //folder in which the fronts of the cards are stored
 	private String backStyle = "Default"; //style for the back of the cards
 	
-	public CardPanel() { //class constructor
+	public CardPanel(Text text) { //class constructor
+		this.text = text;
 		for (int q = 0; q < CARDNUMBER + 2; q++) { //initialize all the cards
 			theCards[q] = new Card(0, 0, false, false, 0, 0); //create a new Card object - random values - so it doesn't throw NullPointerException...
 			theCards[q].setVisible(false);
@@ -1135,9 +1140,9 @@ class CardPanel extends JPanel implements MouseListener {
 			int endY = startY + Card.HEIGHT; //bottom
 			g.drawImage(img, startX, startY, endX, endY, 0, 0, img.getWidth(null), img.getHeight(null), null); //draws the image on the panel - resizing/scaling if necessary
 		}
-		String scoreStr = "Score: " + score; //The won/lost string
-		String remStr = remCards + ((remCards == 1) ? " card" : " cards") + " remaining"; //display how many cards are remaining
-		String tryStr = remTries + ((remTries == 1) ? " try" : " tries") + " remaining"; //display how many tries are remaining
+		String scoreStr = "Score: " + gameScore; //The won/lost string
+		String remStr = remCards + " " + ((remCards == 1) ? text.card() : text.cardPlurial()) + " " + text.remaining(); //display how many cards are remaining
+		String tryStr = remTries + " " + ((remTries == 1) ? text.trySingular() : text.tryPlurial()) + " " + text.remaining(); //display how many tries are remaining
 		g.setColor(fontColor); //the text is white
 		g.setFont(textFont); //set the font for the text
 		g.drawString(scoreStr, 5, Card.HEIGHT * 3); //put the score on the panel
@@ -1625,7 +1630,8 @@ class NewPlayerException extends Exception {
 }
 
 class HighScoreModel extends AbstractTableModel {
-	public static final String[] columnNames = {"Player Name", "Best", "Average", "Number of games"};
+	public static final String[] columnNames = {TriPeaks.text.playerName(),
+		TriPeaks.text.best(), TriPeaks.text.average(), TriPeaks.text.gameNumber()};
 	
 	private Object[][] data;
 	
