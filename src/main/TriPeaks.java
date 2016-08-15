@@ -1059,15 +1059,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 					if ((cm1 == -1) || (cm2 == -1) || (cm1 == cm2)) continue;
 					board.setFontColor(new Color(Integer.parseInt(line.substring(0, cm1)), Integer.parseInt(line.substring(cm1 + 1, cm2)), Integer.parseInt(line.substring(cm2 + 1))));
 				}
-				else if (lNum == stats.length + cheats.length + 6) {
-					if (Long.parseLong(line) != file.lastModified()) {
-						file.delete();
-						JOptionPane.showMessageDialog(this, "Score file has been modified since\nlast used by TriPeaks!\nThe file HAS BEEN DELETED!!!\nPlease don't cheat like that again!", "Cheating Error", JOptionPane.ERROR_MESSAGE);
-						board.setDefaults();
-						board.reset();
-						return;
-					}
-				}
 			}
 			board.setStats(stats); //set the stats in the board
 			board.setCheated(hasCheated); //set the cheat status
