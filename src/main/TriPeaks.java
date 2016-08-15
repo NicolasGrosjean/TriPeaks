@@ -1,20 +1,26 @@
 package main;
 
 import java.awt.*;
-import java.lang.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
+
 import java.awt.event.*;
 import java.util.*;
+
 import javax.imageio.*;
+
 import java.io.*;
 import java.awt.image.*;
 import java.security.*;
+
 import javax.crypto.*;
+
 import java.security.spec.*;
+
 import javax.crypto.spec.*;
-import java.net.*;
+
 import java.text.DecimalFormat;
 
 public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame that listens to window events
@@ -200,7 +206,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 						int c = convertColumnIndexToModel(columnAtPoint(p));
 						HighScoreModel tm = (HighScoreModel) getModel();
 						DecimalFormat format = null;
-						double num;
 						if (getColumnClass(c) == Double.class) format = new DecimalFormat("$###,##0.00");
 						else if (getColumnClass(c) == Integer.class) format = new DecimalFormat("$###,###");
 						if (format == null) return super.getToolTipText(evt);
@@ -561,7 +566,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 					if (oldFont.getFamily().equals(fonts[q])) selIndex = q; //find the old font's index
 				}
 				
-				JList fontList = new JList(fonts); //a list for the fonts
+				JList<String> fontList = new JList<String>(fonts); //a list for the fonts
 				fontList.addListSelectionListener(new ListSelectionListener() { //add a list selection listener (when the selection changes)
 					public void valueChanged(ListSelectionEvent evt) {
 						if (evt.getValueIsAdjusting()) return; //if the user isn't done selecting, don't do anything
@@ -1020,9 +1025,10 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		boolean hasCheated = false; //the cheat status
 		int lNum = -1; //line number (incremented before setting value)
 		Encryptor dec = new Encryptor(backward(fileName)); //set up the encryptor to decrypt the lines (the passphrase is the filename backwards)
+		BufferedReader in = null;
 		try {
 			if (file == null) throw new NewPlayerException("New Player: " + uName); //if the file is null, don't do anything
-			BufferedReader in = new BufferedReader(new FileReader(file)); //create a buffered reader for the file
+			in = new BufferedReader(new FileReader(file)); //create a buffered reader for the file
 			String deced;
 			while ((line = in.readLine()) != null) { //read the lines one-by-one
 				lNum++; //increment the line number
@@ -1075,20 +1081,23 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 			}
 			updateStats(); //update the labels
 			board.repaint(); //repaint the board
-			in.close(); //close the file
-		}
-		catch (FileNotFoundException eFNF) { //file wasn't found (probalby because the user doesn't exist yet
+		} catch (FileNotFoundException eFNF) { //file wasn't found (probalby because the user doesn't exist yet
 			System.out.println("File not found (probably because the User hasn't played before): " + eFNF.getMessage());
-		}
-		catch(IOException eIO) { //other IO error
+		} catch(IOException eIO) { //other IO error
 			System.out.println("Error reading from file -OR- closing file");
+		} finally {
+			try {
+				if (in != null) {
+					in.close();
+				}
+			} catch (IOException e) {}
 		}
 	}
 	
 	public void writeScoreSets() { //writes the scores for the current player
 		String fileName = rot13(uName); //filename is the ROT13 cipher of the username
 		File setFile = new File(dirName + File.separator + fileName + ".txt"); //create the file
-		Encryptor enc = new Encryptor(backward(fileName)); //set up the encryptor to encrpyt the lines
+		Encryptor enc = new Encryptor(backward(fileName)); //set up the encryptor to encrpyt the lines	
 		try {
 			if (setFile == null) return; //if the file doesn't exist, don't do anything
 			BufferedWriter out = new BufferedWriter(new FileWriter(setFile)); //create a buffered writer for the file
@@ -1141,7 +1150,6 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 		InputStream is = TriPeaks.class.getResourceAsStream(settingsFile); //get the file as a stream
 		String line = null; //placeholder for the line
 		String defName = "";
-		int lNum = -1;
 		try {
 			if (is == null) throw new Exception("First Time Running");
 			BufferedReader in = new BufferedReader(new InputStreamReader(is)); //create a buffered reader for the file
@@ -1821,7 +1829,6 @@ class Encryptor { //a class used to encrypt and decrypt stuff
 		catch (BadPaddingException eBP) { } //catch all the exceptions
 		catch (IllegalBlockSizeException eIBS) { }
 		catch (UnsupportedEncodingException eUE) { }
-		catch (IOException eIO) { }
 		return null; //return null if there was an exception
 	}
 	
@@ -1835,7 +1842,6 @@ class Encryptor { //a class used to encrypt and decrypt stuff
 		catch (BadPaddingException eBP) { } //catch all the exceptions
 		catch (IllegalBlockSizeException eIBS) { }
 		catch (UnsupportedEncodingException eUE) { }
-		catch (IOException eIO) { }
 		return null; //return null if there was an exception
 	}
 } //end Encryptor class
@@ -2026,7 +2032,7 @@ class HighScoreModel extends AbstractTableModel {
 		File scoresDir = new File(TriPeaks.scoresDir);
 		if (!scoresDir.isDirectory()) return false;
 		File[] scoreFiles = scoresDir.listFiles();
-		BufferedReader in;
+		BufferedReader in = null;
 		
 		ArrayList<ArrayList> scoreLists = new ArrayList<ArrayList>();
 		ArrayList<Object> plrScores;
@@ -2055,12 +2061,14 @@ class HighScoreModel extends AbstractTableModel {
 				deced = dec.decrypt(line);
 				plrScores.add(new Boolean(deced));
 				scoreLists.add(plrScores);
-			}
-			catch (FileNotFoundException eFNF) { //Should never happen b/c we are opening files listed in a folder...
+			} catch (FileNotFoundException eFNF) { //Should never happen b/c we are opening files listed in a folder...
 				System.out.println(eFNF.getMessage());
-			}
-			catch(IOException eIO) {
+			} catch(IOException eIO) {
 				System.out.println("Error reading from file -OR- closing file");
+			} finally {
+				try {
+					in.close();
+				} catch (IOException e) {}
 			}
 		}
 		
