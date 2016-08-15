@@ -1692,9 +1692,9 @@ class HighScoreModel extends AbstractTableModel {
 		for (Iterator<ArrayList<Object>> it1 = scoreLists.iterator(); it1.hasNext(); q++) {
 			ArrayList<Object> score = it1.next();
 			data[q][0] = TriPeaks.capitalize((String) score.get(0));
-			data[q][1] = score.get(1);
-			data[q][2] = score.get(2);
-			data[q][3] = score.get(3);
+			data[q][1] = score.get(2);
+			data[q][2] = score.get(3);
+			data[q][3] = score.get(4);
 		}
 		
 		return true;
