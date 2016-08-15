@@ -1129,21 +1129,25 @@ class CardPanel extends JPanel implements MouseListener {
 		}
 		String scoreStr = "Score: " + score; //The won/lost string
 		String remStr = remCards + ((remCards == 1) ? " card" : " cards") + " remaining"; //display how many cards are remaining
+		String tryStr = remTries + ((remTries == 1) ? " try" : " tries") + " remaining"; //display how many tries are remaining
 		g.setColor(fontColor); //the text is white
 		g.setFont(textFont); //set the font for the text
 		g.drawString(scoreStr, 5, Card.HEIGHT * 3); //put the score on the panel
 		g.drawString(remStr, 5, Card.HEIGHT * 3 + 25); //put the remaining cards on the panel
+		g.drawString(tryStr, 5, Card.HEIGHT * 3 + 50); //put the remaining tries on the panel
 		g.drawString(status, 5, getSize().height - 10); //print the status message.
 		status = ""; //reset the status message
+		
+		// Victory on this try
+		if (cardsInPlay == 0) {
+			redeal(false);
+		}
 	}
 	
-	public void redeal() { //redeals the cards
+	public void redeal(boolean newGame) { //redeals the cards
 		int[] cards = randomize(); //randomize the cards
-		for (int q = 0; q < 52; q++) { //initialize all the cards
-			theCards[q] = new Card(); //create a new Card object
-			theCards[q].setSuit((int) cards[q] / 13); //set the card's suit
-			theCards[q].setValue(cards[q] % 13); //set its value
-			theCards[q].setVisible(true); //all cards are visible, so far
+		for (int q = 0; q < CARDNUMBER; q++) { //initialize all the cards
+			theCards[q] = new Card((int) cards[q] / 13, cards[q] % 13, true);
 		}
 		for (int q = 0; q < 3; q++) { //first row
 			theCards[q].setX(2 * Card.WIDTH + q * 3 * Card.WIDTH); //set the X-coord
