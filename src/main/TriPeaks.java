@@ -1067,6 +1067,8 @@ class CardPanel extends JPanel implements MouseListener {
 	private Font textFont = new Font("Serif", Font.BOLD, 14);
 	public Card[] theCards = new Card[52]; //array with the cards
 	public static final int NSTATS = 5;
+	public static final int cardPoint = 100; // point set when removing a card
+	public static final int peakBonus = 500; // bonus when finishing a peak
 	private int disIndex = 51; //index of the card in the discard pile
 	private int score = 0; //player's overall score
 	private int gameScore = 0; //current game score
@@ -1121,7 +1123,7 @@ class CardPanel extends JPanel implements MouseListener {
 			int endY = startY + Card.HEIGHT; //bottom
 			g.drawImage(img, startX, startY, endX, endY, 0, 0, img.getWidth(null), img.getHeight(null), null); //draws the image on the panel - resizing/scaling if necessary
 		}
-		String scoreStr = (score < 0) ? "Lost $" + (-1) * score : "Won $" + score; //The won/lost string
+		String scoreStr = "Score: " + score; //The won/lost string
 		String remStr = remCards + ((remCards == 1) ? " card" : " cards") + " remaining"; //display how many cards are remaining
 		g.setColor(fontColor); //the text is white
 		g.setFont(textFont); //set the font for the text
@@ -1256,11 +1258,11 @@ class CardPanel extends JPanel implements MouseListener {
 				theCards[disIndex].setVisible(false); //hide the previously discarded card - makes the repaint faster
 				disIndex = q; //the card is now in the discard pile
 				
-				streak++; //increment the strea
+				streak++; //increment the streak
 				cardsInPlay--; //decrement the number of cards in play
-				score += streak; //add the streak to the score
-				gameScore += streak; //and to the current game's score
-				sesScore += streak; //and to the session score
+				score += cardPoint; //add the cardPoint to the score
+				gameScore += cardPoint; //and to the current game's score
+				sesScore += cardPoint; //and to the session score
 				if (streak > highStreak) highStreak = streak; //set the high streak if it's higher
 				if (gameScore > highScore) highScore = gameScore; //set the high score if it's higher
 				
@@ -1326,12 +1328,8 @@ class CardPanel extends JPanel implements MouseListener {
 				theCards[disIndex].setVisible(false); //hide the previously discarded card (for faster repaint)
 				theCards[q].flip(); //flip the deck card
 				if (q != 28) theCards[q - 1].setVisible(true); //show the next deck card if it's not the last deck card
-				disIndex = q; //set the index of the dicard pile
+				disIndex = q; //set the index of the discard pile
 				streak = 0; //reset the streak
-				score -= 5; //5-point penalty
-				gameScore -= 5; //to the game score
-				sesScore -= 5; //and the session score
-				if (gameScore < lowScore) lowScore = gameScore; //set the low score if score is lower
 				remCards--; //decrement the number of cards in the deck
 			}
 			break; //"consume" the click - don't go through the rest of the cards
