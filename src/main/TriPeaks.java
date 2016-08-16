@@ -1053,6 +1053,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	
 	public void windowClosing(WindowEvent e) { //the X is clicked (not when the window disappears - that's windowClosed
 		board.updateAverageScoreIfNecessary();
+		board.incrementGameNumberIfNecessary();
 		File setFile = new File(settingsFile); //create the file
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(setFile)); //create a buffered writer for the file
@@ -1163,9 +1164,16 @@ class CardPanel extends JPanel implements MouseListener {
 	}
 
 	public void updateAverageScoreIfNecessary() {
-		if ((numGames > 0) && (gameScore > 0)) {
-			averageScore = (averageScore * numGames + gameScore) / (numGames + 1);
-		}		
+		if (gameScore > 0) {
+			averageScore = (averageScore * numGames + gameScore) / (numGames + 1);	
+		}
+	}
+	
+	public void incrementGameNumberIfNecessary() {
+		if (gameScore > 0) {
+			numGames++; //increment the number of games played
+			sesGames++; //increment the number of session games		
+		}
 	}
 
 	public void redeal(boolean newGame) { //redeals the cards
@@ -1219,11 +1227,10 @@ class CardPanel extends JPanel implements MouseListener {
 
 		if (newGame) {
 			updateAverageScoreIfNecessary();
+			incrementGameNumberIfNecessary();
 			remTries = 2; // 2 tries
 			gameScore = 0; //the game score is reset
-			sesScore = 0;
-			numGames++; //increment the number of games played
-			sesGames++; //increment the number of session games			
+			sesScore = 0;	
 		}
 		
 		repaint(); //repaint the board
