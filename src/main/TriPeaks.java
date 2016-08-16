@@ -160,6 +160,8 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 			public void actionPerformed(ActionEvent e) {
 				String tempName = JOptionPane.showInputDialog(TriPeaks.this, text.playerName(), uName); //ask for the user's name
 				if ((tempName != null) && (!tempName.equals(""))) { //if it's not null or empty
+					board.updateAverageScoreIfNecessary();
+					board.incrementGameNumberIfNecessary();
 					writeScoreSets(); //write the current user's score
 					board.reset();
 					uName = tempName; //change the user
@@ -170,7 +172,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 						board.setDefaults();
 					}
 					updateStats();
-					board.repaint();
+					board.redeal(true);
 				}
 			}
 		});
