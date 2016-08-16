@@ -2,7 +2,6 @@ package main;
 
 /**
  * Improvement suggestions:
- *  - Add the name of the player at top right
  *  - Add the number of 3-peaks completed (current and historic)
  */
 
@@ -34,7 +33,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 	public static final String scoresDir = "Scores";
 	private final String dirName = scoresDir; //the folder with the score files (ROT13 of TriScores)
 	private final String settingsFile = "TriSet";
-	private String uName; //name of the player
+	public static String uName; //name of the player
 	private JPanel statsPanel; //the panel with the stats
 	private JCheckBoxMenuItem statsCheck;
 	
@@ -1158,6 +1157,9 @@ class CardPanel extends JPanel implements MouseListener {
 		g.drawString(remStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 + 25); //put the remaining cards on the panel
 		g.drawString(tryStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 + 50); //put the remaining tries on the panel
 		g.drawString(status, widthMargin + 5, heightMargin + getSize().height - 10); //print the status message.
+		if (TriPeaks.uName != null) {
+			g.drawString(text.playerName() + " " + TriPeaks.uName, 0, 25);
+		}
 		status = ""; //reset the status message
 		
 		// Victory on this try
