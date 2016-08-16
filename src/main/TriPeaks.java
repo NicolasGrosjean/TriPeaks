@@ -1087,6 +1087,7 @@ class CardPanel extends JPanel implements MouseListener {
 	public static final int NSTATS = 5;
 	public static final int CARDPOINTS = 100; // point set when removing a card
 	public static final int PEAKBONUS = 500; // bonus when finishing a peak
+	public static final int TRIPEAKBONUS = 3500; // bonus when have the TriPeak
 	private int disIndex = 51; //index of the card in the discard pile
 	private int score = 0; //player's overall score
 	private int gameScore = 0; //current game score
@@ -1324,6 +1325,9 @@ class CardPanel extends JPanel implements MouseListener {
 					gameScore += (3 - remPeaks) * PEAKBONUS; //and to the game score
 					sesScore += (3 - remPeaks) * PEAKBONUS; //and to the session score
 					if (remPeaks == 0) { //if all the peaks are gone
+						score += TRIPEAKBONUS;
+						gameScore += TRIPEAKBONUS;
+						sesScore += TRIPEAKBONUS;
 						status = "You have Tri-Conquered!"; //set the status message
 						for (int w = 28; w < (remCards + 28); w++) { //the remaining deck
 							theCards[w].setVisible(false); //hide the deck (so you can't take cards from the deck after you clear the board
