@@ -1038,6 +1038,7 @@ class CardPanel extends JPanel implements MouseListener {
 	public Card[] theCards = new Card[CARDNUMBER + 2]; //array with the cards
 	public static final int NSTATS = 5;
 	public static final int CARDPOINTS = 100; // point set when removing a card
+	public static final int STREAKPOINTS = 200; // point set when removing a card
 	public static final int PEAKBONUS = 500; // bonus when finishing a peak
 	public static final int TRIPEAKBONUS = 3500; // bonus when have the TriPeak
 	private int disIndex = 51; //index of the card in the discard pile
@@ -1265,12 +1266,12 @@ class CardPanel extends JPanel implements MouseListener {
 				theCards[q].setY(theCards[disIndex].getY()); //set the discard pile's card's coords
 				theCards[disIndex].setVisible(false); //hide the previously discarded card - makes the repaint faster
 				disIndex = q; //the card is now in the discard pile
-				
-				streak++; //increment the streak
+								
 				cardsInPlay--; //decrement the number of cards in play
-				score += CARDPOINTS; //add the cardPoint to the score
-				gameScore += CARDPOINTS; //and to the current game's score
-				sesScore += CARDPOINTS; //and to the session score
+				score += CARDPOINTS + streak * STREAKPOINTS; //add the cardPoint to the score
+				gameScore += CARDPOINTS + streak * STREAKPOINTS; //and to the current game's score
+				sesScore += CARDPOINTS + streak * STREAKPOINTS; //and to the session score
+				streak++; //increment the streak
 				if (streak > highStreak) highStreak = streak; //set the high streak if it's higher
 				if (gameScore > highScore) highScore = gameScore; //set the high score if it's higher
 				
