@@ -1219,9 +1219,9 @@ class CardPanel extends JPanel implements MouseListener {
 		theCards[51].flip(false); //face-up
 		
 		// Special cards when the deck is empty to replace buttons
-		theCards[52] = new Card(13, Card.SPADES, false, false, widthMargin + 7 * ((int) Card.WIDTH / 2),
+		theCards[52] = new Card(13, Card.SPADES, false, false, widthMargin + 10 * ((int) Card.WIDTH / 2),
 				heightMargin + 13 * ((int) Card.HEIGHT / 4));
-		theCards[53] = new Card(14, Card.SPADES, false, false, widthMargin + 7 * ((int) Card.WIDTH / 2),
+		theCards[53] = new Card(14, Card.SPADES, false, false, widthMargin + 10 * ((int) Card.WIDTH / 2),
 				heightMargin + 13 * ((int) Card.HEIGHT / 4));
 		
 		remCards = 23; //23 cards left in the deck
