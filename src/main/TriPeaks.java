@@ -197,56 +197,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 				HighScoreModel hsModel = new HighScoreModel();
 				writeScoreSets();
 				if (!hsModel.readAndSetData()) System.out.println("Error setting table values!");
-				JTable scoreTable = new JTable(hsModel) {
-					public String getToolTipText(MouseEvent evt) {
-						String tip = null;
-						Point p = evt.getPoint();
-						if (rowAtPoint(p) == -1) {
-							tip = super.getToolTipText(evt);
-							return tip;
-						}
-						int r = convertRowIndexToModel(rowAtPoint(p));
-						int c = convertColumnIndexToModel(columnAtPoint(p));
-						HighScoreModel tm = (HighScoreModel) getModel();
-						DecimalFormat format = null;
-						if (getColumnClass(c) == Double.class) format = new DecimalFormat("$###,##0.00");
-						else if (getColumnClass(c) == Integer.class) format = new DecimalFormat("$###,###");
-						if (format == null) return super.getToolTipText(evt);
-						switch (c) {
-							case 1:
-							int score = ((Integer) tm.getValueAt(r, 1)).intValue();
-							tip = (String) tm.getValueAt(r, 0) + " is " + ((score < 0) ? "losing $" + -1 * score: "winning $" + score) + ".";
-							break;
-							case 2:
-							double avg = ((Double) tm.getValueAt(r, 2)).doubleValue();
-							tip = (String) tm.getValueAt(r, 0) + "'s average is " + format.format(avg) + " per game.";
-							break;
-							case 3:
-							double max = (double) ((Integer) tm.getValueAt(r, 3)).intValue();
-							tip = (String) tm.getValueAt(r, 0) + " has won a maximum of " + format.format(max) + " in one game.";
-							break;
-							case 4:
-							int min = ((Integer) tm.getValueAt(r, 4)).intValue();
-							tip = (String) tm.getValueAt(r, 0) + " has lost a maximum of $" + -1 * min + " in one game.";
-							break;
-							case 5:
-							int maxStr = ((Integer) tm.getValueAt(r, 5)).intValue();
-							tip = (String) tm.getValueAt(r, 0) + "'s longest streak is " + maxStr + " cards in a row ($" + ((int) maxStr * (maxStr + 1) / 2) + ").";
-							break;
-							case 6:
-							int nGames = ((Integer) tm.getValueAt(r, 6)).intValue();
-							tip = (String) tm.getValueAt(r, 0) + " has played " + nGames + " " + ((nGames == 1) ? "game." : "games.");
-							break;
-							case 7:
-							boolean cheater = ((Boolean) tm.getValueAt(r, 7)).booleanValue();
-							tip = (String) tm.getValueAt(r, 0) + ((cheater) ? " has cheated already." : " has never cheated yet.");
-							break;
-							default:
-							tip = super.getToolTipText(evt);
-						}
-						return tip;
-					}
-					
+				JTable scoreTable = new JTable(hsModel) {				
 					protected JTableHeader createDefaultTableHeader() {
 						return new JTableHeader(columnModel) {
 							public String getToolTipText(MouseEvent evt) {
