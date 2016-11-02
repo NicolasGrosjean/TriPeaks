@@ -121,5 +121,25 @@ public class TextFrancais extends Text {
 	public String gameNumber() {
 		return "Nombre de parties";
 	}
+
+	@Override
+	public String table() {
+		return "tableau";
+	}
+
+	@Override
+	public String complete() {
+		return "complété(s)";
+	}
+
+	@Override
+	public String tablePlurial() {
+		return "tableaux";
+	}
+
+	@Override
+	public String maxCompletedTable() {
+		return "Max tableaux complétés";
+	}
 	
 }

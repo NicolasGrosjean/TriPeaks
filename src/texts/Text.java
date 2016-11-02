@@ -25,4 +25,8 @@ public abstract class Text {
 	public abstract String best();
 	public abstract String average();
 	public abstract String gameNumber();
+	public abstract String table();
+	public abstract String complete();
+	public abstract String tablePlurial();
+	public abstract String maxCompletedTable();	
 }

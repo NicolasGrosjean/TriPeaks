@@ -121,5 +121,25 @@ public class TextEnglish extends Text {
 	public String gameNumber() {
 		return "Game number";
 	}
+
+	@Override
+	public String table() {
+		return "table";
+	}
+
+	@Override
+	public String complete() {
+		return "completed";
+	}
+
+	@Override
+	public String tablePlurial() {
+		return "tables";
+	}
+
+	@Override
+	public String maxCompletedTable() {
+		return "Max completed tables";
+	}
 	
 }

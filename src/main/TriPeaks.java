@@ -229,7 +229,7 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 					}
 					
 					public TableCellRenderer getCellRenderer(int r, int c) {
-						if ((c >= 1) && (c <= 4)) return new CurrencyRenderer();
+						if ((c >= 1) && (c <= 5)) return new CurrencyRenderer();
 						return super.getCellRenderer(r, c);
 					}
 				};
@@ -295,8 +295,9 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 				contentPanel.add(closeButton);
 				
 				scoresDialog.setContentPane(contentPanel);
-				scoresDialog.pack();
-				scoresDialog.setLocationRelativeTo(TriPeaks.this);
+				scoresDialog.pack();				
+				scoresDialog.setSize(768, 300);
+				scoresDialog.setLocation(100, 100);
 				scoresDialog.setVisible(true);
 			}
 		});
@@ -950,6 +951,8 @@ public class TriPeaks extends JFrame implements WindowListener { //it's a JFrame
 			out.newLine();
 			out.write("" + board.getHighStreak()); //player's longest streak
 			out.newLine();
+			out.write("" + board.getHighCompletedTables()); //player's longest streak
+			out.newLine();
 			out.write("" + board.getCardFront());
 			out.newLine();
 			out.write("" + board.getCardBack());
@@ -1036,7 +1039,7 @@ class CardPanel extends JPanel implements MouseListener {
 	private Font textFont = new Font("Serif", Font.BOLD, 18);
 	public static final int CARDNUMBER = 52;
 	public Card[] theCards = new Card[CARDNUMBER + 2]; //array with the cards
-	public static final int NSTATS = 5;
+	public static final int NSTATS = 6;
 	public static final int CARDPOINTS = 100; // point set when removing a card
 	public static final int STREAKPOINTS = 200; // point set when removing a card
 	public static final int PEAKBONUS = 500; // bonus when finishing a peak
@@ -1055,6 +1058,8 @@ class CardPanel extends JPanel implements MouseListener {
 	private int highScore = 0; //highest score
 	private int averageScore = 0; //average score
 	private int highStreak = 0; //longest streak
+	private int completedTables = 0; // Number of completed/clear tables
+	private int highCompletedTables = 0; // Record of completed/clear tables
 	private int widthMargin;
 	private int heightMargin;
 	private String status = ""; //status text (used later)
@@ -1101,13 +1106,15 @@ class CardPanel extends JPanel implements MouseListener {
 			g.drawImage(img, startX, startY, endX, endY, 0, 0, img.getWidth(null), img.getHeight(null), null); //draws the image on the panel - resizing/scaling if necessary
 		}
 		String scoreStr = "Score: " + gameScore; //The won/lost string
+		String tableStr = completedTables + " " + ((completedTables == 1) ? text.table() : text.tablePlurial()) + " " + text.complete();
 		String remStr = remCards + " " + ((remCards == 1) ? text.card() : text.cardPlurial()) + " " + text.remaining(); //display how many cards are remaining
 		String tryStr = remTries + " " + ((remTries == 1) ? text.trySingular() : text.tryPlurial()) + " " + text.remaining(); //display how many tries are remaining
 		g.setColor(fontColor); //the text is white
 		g.setFont(textFont); //set the font for the text
-		g.drawString(scoreStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3); //put the score on the panel
-		g.drawString(remStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 + 25); //put the remaining cards on the panel
-		g.drawString(tryStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 + 50); //put the remaining tries on the panel
+		g.drawString(scoreStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 - 15); //put the score on the panel
+		g.drawString(tableStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 + 10); // put the completed table on the panel
+		g.drawString(remStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 + 35); //put the remaining cards on the panel
+		g.drawString(tryStr, widthMargin + 5, heightMargin + Card.HEIGHT * 3 + 60); //put the remaining tries on the panel
 		g.drawString(status, widthMargin + 5, heightMargin + getSize().height - 10); //print the status message.
 		if (TriPeaks.uName != null) {
 			g.drawString(text.playerName() + " " + TriPeaks.uName, 0, 25);
@@ -1187,7 +1194,8 @@ class CardPanel extends JPanel implements MouseListener {
 			incrementGameNumberIfNecessary();
 			remTries = 2; // 2 tries
 			gameScore = 0; //the game score is reset
-			sesScore = 0;	
+			sesScore = 0;
+			completedTables = 0;
 		}
 		
 		repaint(); //repaint the board
@@ -1213,6 +1221,7 @@ class CardPanel extends JPanel implements MouseListener {
 		highScore = 0;
 		averageScore = 0;
 		highStreak = 0;
+		completedTables = 0;
 		status = "";
 		
 		repaint(); //repaint the board
@@ -1284,6 +1293,8 @@ class CardPanel extends JPanel implements MouseListener {
 						score += TRIPEAKBONUS;
 						gameScore += TRIPEAKBONUS;
 						sesScore += TRIPEAKBONUS;
+						completedTables++;
+						if (completedTables > highCompletedTables) highCompletedTables = completedTables;
 						status = "You have Tri-Conquered!"; //set the status message
 						for (int w = 28; w < (remCards + 28); w++) { //the remaining deck
 							theCards[w].setVisible(false); //hide the deck (so you can't take cards from the deck after you clear the board
@@ -1398,6 +1409,10 @@ class CardPanel extends JPanel implements MouseListener {
 		return highStreak;
 	}
 	
+	public int getHighCompletedTables() {
+		return highCompletedTables;
+	}
+	
 	public int getSesScore() { //returns the session score
 		return sesScore;
 	}
@@ -1415,7 +1430,7 @@ class CardPanel extends JPanel implements MouseListener {
 	}
 	
 	public int[] getAllStats() { //returns all the stats in an array
-		int[] retVal = {getScore(), getGameScore(), getSesScore(), getStreak(), getNumGames(), getSesGames(), getHighScore(), getAverageScore(), getHighStreak()}; //the array of stats
+		int[] retVal = {getScore(), getGameScore(), getSesScore(), getStreak(), getNumGames(), getSesGames(), getHighScore(), getAverageScore(), getHighStreak(), getHighCompletedTables()}; //the array of stats
 		return retVal;
 	}
 	
@@ -1425,6 +1440,7 @@ class CardPanel extends JPanel implements MouseListener {
 		averageScore = stats[2];
 		numGames = stats[3];
 		highStreak = stats[4];
+		highCompletedTables = stats[5];
 	}
 	
 	public void setCardFront(String front) { //sets the front style
@@ -1609,7 +1625,8 @@ class NewPlayerException extends Exception {
 
 class HighScoreModel extends AbstractTableModel {
 	public static final String[] columnNames = {TriPeaks.text.playerName(),
-		TriPeaks.text.best(), TriPeaks.text.average(), TriPeaks.text.gameNumber()};
+		TriPeaks.text.best(), TriPeaks.text.average(), TriPeaks.text.gameNumber(),
+		TriPeaks.text.maxCompletedTable()};
 	
 	private Object[][] data;
 	
@@ -1679,6 +1696,7 @@ class HighScoreModel extends AbstractTableModel {
 			data[q][1] = score.get(2);
 			data[q][2] = score.get(3);
 			data[q][3] = score.get(4);
+			data[q][4] = score.get(6);
 		}
 		
 		return true;
