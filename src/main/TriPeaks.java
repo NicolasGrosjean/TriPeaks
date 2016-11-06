@@ -1327,6 +1327,7 @@ class CardPanel extends JPanel implements MouseListener {
 				theCards[disIndex].setVisible(false); //hide the previously discarded card - makes the repaint faster
 				lastMovedCardIndex = q;
 				lastMovedCardDeck = false;
+				theCards[q].saveFaceDownPrev();
 				cancel.setEnabled(true);
 				disIndexPrev = disIndex;
 				disIndex = q; //the card is now in the discard pile
@@ -1405,6 +1406,7 @@ class CardPanel extends JPanel implements MouseListener {
 				theCards[disIndex].setVisible(false); //hide the previously discarded card (for faster repaint)
 				lastMovedCardIndex = q;
 				lastMovedCardDeck = true;
+				theCards[q].saveFaceDownPrev();
 				cancel.setEnabled(true);
 				peakPrev = false;
 				theCards[q].flip(); //flip the deck card
@@ -1608,15 +1610,17 @@ class Card { //defines a card
 	}
 	
 	public void flip() {
-		isFaceDownPrev = isFaceDown;
 		isFaceDown = !isFaceDown;
 	}
 	
 	public void flip(boolean isFaceDown) {
-		isFaceDownPrev = this.isFaceDown;
 		this.isFaceDown = isFaceDown;
 	}
 	
+	public void saveFaceDownPrev() {
+		isFaceDownPrev = isFaceDown;
+	}
+
 	public static String suitAsString(int aSuit) { //converts the suit to a string
 		switch(aSuit) {
 			case CLUBS:
