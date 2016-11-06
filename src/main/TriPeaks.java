@@ -1116,7 +1116,9 @@ class CardPanel extends JPanel implements MouseListener {
 			}
 		});
 		setLayout(new BorderLayout());
-		add(cancel, BorderLayout.SOUTH);
+		JPanel south = new JPanel();
+		south.add(cancel);
+		add(south, BorderLayout.SOUTH);
 	}
 	
 	public void paint(Graphics g) { //custom paint method
