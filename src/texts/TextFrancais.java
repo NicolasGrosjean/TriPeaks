@@ -141,5 +141,9 @@ public class TextFrancais extends Text {
 	public String maxCompletedTable() {
 		return "Max tableaux complétés";
 	}
-	
+
+	@Override
+	public String cancel() {
+		return "Annuler";
+	}	
 }

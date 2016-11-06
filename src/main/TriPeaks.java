@@ -1045,6 +1045,7 @@ class CardPanel extends JPanel implements MouseListener {
 	public static final int PEAKBONUS = 500; // bonus when finishing a peak
 	public static final int TRIPEAKBONUS = 3500; // bonus when have the TriPeak
 	private int disIndex = 51; //index of the card in the discard pile
+	private int disIndexPrev = -1; // previous index of the card in the discard pile
 	private int score = 0; //player's overall score
 	private int gameScore = 0; //current game score
 	private int sesScore = 0; //session score
@@ -1064,7 +1065,11 @@ class CardPanel extends JPanel implements MouseListener {
 	private int heightMargin;
 	private String status = ""; //status text (used later)
 	private String frontFolder = "Default"; //folder in which the fronts of the cards are stored
-	private String backStyle = "Default"; //style for the back of the cards	
+	private String backStyle = "Default"; //style for the back of the cards
+	private int lastMovedCardIndex = -1; // index in theCards of the last moved card
+	private boolean lastMovedCardDeck; // the last card moved was in the deck
+	private JButton cancel;
+	private boolean peakPrev; // the last card moved clean a peak
 	
 	public CardPanel(Text text, int windowWidth, int windowHeight) { //class constructor
 		this.text = text;
@@ -1075,6 +1080,43 @@ class CardPanel extends JPanel implements MouseListener {
 			theCards[q].setVisible(false);
 		}
 		addMouseListener(this); //adds a mouse-listener to the board
+		cancel = new JButton(text.cancel());
+		cancel.setEnabled(false);
+		cancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (lastMovedCardIndex >= 0) {
+					// Move the last card moved
+					theCards[lastMovedCardIndex].movePrev();
+					
+					// Display the previous card in the discard (now the first)
+					if (disIndexPrev >= 0) { // Normally always true
+						theCards[disIndexPrev].setVisible(true);
+						disIndex = disIndexPrev;
+					}
+					
+					// Update stats
+					if (lastMovedCardDeck) {
+						remCards++;
+					} else {
+						cardsInPlay++;
+						score -= CARDPOINTS + streak * STREAKPOINTS;
+						gameScore -= CARDPOINTS + streak * STREAKPOINTS;
+						sesScore -= CARDPOINTS + streak * STREAKPOINTS;
+						streak--;
+						if (peakPrev) {
+							remPeaks++;
+							score -= (3 - remPeaks) * PEAKBONUS;
+							gameScore -= (3 - remPeaks) * PEAKBONUS;
+							sesScore -= (3 - remPeaks) * PEAKBONUS;
+						}
+					}
+					cancel.setEnabled(false);
+					repaint();
+				}
+			}
+		});
+		setLayout(new BorderLayout());
+		add(cancel, BorderLayout.SOUTH);
 	}
 	
 	public void paint(Graphics g) { //custom paint method
@@ -1120,6 +1162,7 @@ class CardPanel extends JPanel implements MouseListener {
 			g.drawString(text.playerName() + " " + TriPeaks.uName, 0, 25);
 		}
 		status = ""; //reset the status message
+		cancel.repaint();
 		
 		// Victory on this try
 		if (cardsInPlay == 0) {
@@ -1188,6 +1231,9 @@ class CardPanel extends JPanel implements MouseListener {
 		remPeaks = 3; //all three peaks are there
 		streak = 0; //the streak is reset
 		disIndex = 51; //the discard pile index is back to 51
+		disIndexPrev = -1;
+		lastMovedCardIndex = -1;
+		cancel.setEnabled(false);
 
 		if (newGame) {
 			updateAverageScoreIfNecessary();
@@ -1208,6 +1254,7 @@ class CardPanel extends JPanel implements MouseListener {
 			theCards[q].setVisible(false); //make all the cards invisible
 		}
 		disIndex = 51; //essentially the same thing as the default values for the fields
+		disIndexPrev = -1;
 		score = 0;
 		gameScore = 0;
 		sesScore = 0;
@@ -1223,6 +1270,8 @@ class CardPanel extends JPanel implements MouseListener {
 		highStreak = 0;
 		completedTables = 0;
 		status = "";
+		lastMovedCardIndex = -1;
+		cancel.setEnabled(false);
 		
 		repaint(); //repaint the board
 		TriPeaks theFrame = (TriPeaks) SwingUtilities.windowForComponent(this); //get the frame
@@ -1274,6 +1323,10 @@ class CardPanel extends JPanel implements MouseListener {
 				theCards[q].setX(theCards[disIndex].getX()); //put the card in the discard pile
 				theCards[q].setY(theCards[disIndex].getY()); //set the discard pile's card's coords
 				theCards[disIndex].setVisible(false); //hide the previously discarded card - makes the repaint faster
+				lastMovedCardIndex = q;
+				lastMovedCardDeck = false;
+				cancel.setEnabled(true);
+				disIndexPrev = disIndex;
 				disIndex = q; //the card is now in the discard pile
 								
 				cardsInPlay--; //decrement the number of cards in play
@@ -1289,6 +1342,7 @@ class CardPanel extends JPanel implements MouseListener {
 					score += (3 - remPeaks) * PEAKBONUS; //add a bonus
 					gameScore += (3 - remPeaks) * PEAKBONUS; //and to the game score
 					sesScore += (3 - remPeaks) * PEAKBONUS; //and to the session score
+					peakPrev = true;
 					if (remPeaks == 0) { //if all the peaks are gone
 						score += TRIPEAKBONUS;
 						gameScore += TRIPEAKBONUS;
@@ -1304,6 +1358,8 @@ class CardPanel extends JPanel implements MouseListener {
 					
 					if (gameScore > highScore) highScore = gameScore; //set the high score if the score is higher
 					break; //"consume" the mouse click - don't go through the rest of the cards
+				} else {
+					peakPrev = false;
 				}
 				boolean noLeft, noRight; //check values for checking whether or not a card has a card to the left or right
 				noLeft = noRight = false; //starts out as having both
@@ -1345,6 +1401,10 @@ class CardPanel extends JPanel implements MouseListener {
 				theCards[q].setX(theCards[disIndex].getX()); //move the card to the deck
 				theCards[q].setY(theCards[disIndex].getY()); //set the deck's coordinates
 				theCards[disIndex].setVisible(false); //hide the previously discarded card (for faster repaint)
+				lastMovedCardIndex = q;
+				lastMovedCardDeck = true;
+				cancel.setEnabled(true);
+				peakPrev = false;
 				theCards[q].flip(); //flip the deck card
 				if (q != 28) {
 					theCards[q - 1].setVisible(true); //show the next deck card if it's not the last deck card
@@ -1353,6 +1413,7 @@ class CardPanel extends JPanel implements MouseListener {
 				} else {
 					theCards[53].setVisible(true);
 				}
+				disIndexPrev = disIndex;
 				disIndex = q; //set the index of the discard pile
 				streak = 0; //reset the streak
 				remCards--; //decrement the number of cards in the deck
@@ -1487,11 +1548,14 @@ class Card { //defines a card
 	public static final int WIDTH = 64;
 	
 	private boolean isFaceDown; //is it facing down
+	private boolean isFaceDownPrev; // was it facing down
 	private boolean visible; //is it visible
 	private int value; //value (0-12) - 0=Ace, 10=Jack, 11=Queen, 12=King
 	private int suit; //suit of the card, as defined above
 	private int xCoord; //coordinates of the card (center, not top-left)
 	private int yCoord;
+	private int xPrev = -1;
+	private int yPrev = -1;
 	
 	public Card(int suit, int value, boolean visible) {
 		this(value, suit, true, visible, 0, 0);
@@ -1542,10 +1606,12 @@ class Card { //defines a card
 	}
 	
 	public void flip() {
+		isFaceDownPrev = isFaceDown;
 		isFaceDown = !isFaceDown;
 	}
 	
 	public void flip(boolean isFaceDown) {
+		isFaceDownPrev = this.isFaceDown;
 		this.isFaceDown = isFaceDown;
 	}
 	
@@ -1570,15 +1636,23 @@ class Card { //defines a card
 	}
 	
 	public void setX(int newX) {
+		xPrev = xCoord;
 		xCoord = newX;
 	}
 	
 	public void setY(int newY) {
+		yPrev = yCoord;
 		yCoord = newY;
 	}
 	
 	public void setVisible(boolean newVis) {
 		visible = newVis;
+	}
+	
+	public void movePrev() {
+		setX(xPrev);
+		setY(yPrev);
+		flip(isFaceDownPrev);
 	}
 	
 	public String toString() { //converts the card to a string representation

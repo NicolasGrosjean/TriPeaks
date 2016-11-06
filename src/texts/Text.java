@@ -29,4 +29,5 @@ public abstract class Text {
 	public abstract String complete();
 	public abstract String tablePlurial();
 	public abstract String maxCompletedTable();	
+	public abstract String cancel();
 }

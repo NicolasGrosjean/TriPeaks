@@ -141,5 +141,9 @@ public class TextEnglish extends Text {
 	public String maxCompletedTable() {
 		return "Max completed tables";
 	}
-	
+
+	@Override
+	public String cancel() {
+		return "Cancel";
+	}	
 }
