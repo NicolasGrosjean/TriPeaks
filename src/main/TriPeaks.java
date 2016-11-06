@@ -1099,15 +1099,15 @@ class CardPanel extends JPanel implements MouseListener {
 						remCards++;
 					} else {
 						cardsInPlay++;
+						streak--;
 						score -= CARDPOINTS + streak * STREAKPOINTS;
 						gameScore -= CARDPOINTS + streak * STREAKPOINTS;
 						sesScore -= CARDPOINTS + streak * STREAKPOINTS;
-						streak--;
 						if (peakPrev) {
-							remPeaks++;
 							score -= (3 - remPeaks) * PEAKBONUS;
 							gameScore -= (3 - remPeaks) * PEAKBONUS;
 							sesScore -= (3 - remPeaks) * PEAKBONUS;
+							remPeaks++;
 						}
 					}
 					cancel.setEnabled(false);
